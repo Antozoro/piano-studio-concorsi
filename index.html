@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="it">
-<head> 
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Piano di Studio — Pratiche in corso</title>
@@ -838,6 +838,9 @@ function buildSessionCard(cat, isBonus){
   const idx = state.indices[cat] % catData.topics.length;
   const topic = catData.topics[idx];
   const { modeClass, modeLabel, modeHint, topicClean, resourceUrl } = computeModeInfo(topic, catData);
+  // Identificatore univoco per gli ID del DOM: in modalità focus, principale e bonus possono
+  // condividere la stessa categoria (es. DTD2+DTD2) — senza questo, avremmo ID HTML duplicati
+  const domId = isBonus ? `${cat}-bonus` : cat;
 
   const todayKey = dateKey(new Date());
   const doneState = isBonus
@@ -889,10 +892,10 @@ function buildSessionCard(cat, isBonus){
       interactiveHtml += `
         <div class="score-entry">
           <span class="score-label">Risultato quiz Concorsando:</span>
-          <input type="number" id="scoreCorrect-${cat}" min="0" placeholder="corrette">
+          <input type="number" id="scoreCorrect-${domId}" min="0" placeholder="corrette">
           <span>/</span>
-          <input type="number" id="scoreTotal-${cat}" min="1" placeholder="totali">
-          <button class="btn small save-score-btn" data-cat="${cat}" data-topic="${topicClean}">Salva</button>
+          <input type="number" id="scoreTotal-${domId}" min="1" placeholder="totali">
+          <button class="btn small save-score-btn" data-cat="${domId}" data-topic="${topicClean}">Salva</button>
         </div>`;
     }
     if (lastScore){
@@ -925,7 +928,7 @@ function buildSessionCard(cat, isBonus){
     : (isBonus ? 'Segna come completata (bonus)' : 'Segna come completata');
 
   return `
-    <div class="task-card ${isBonus?'bonus-card':''}" id="session-card-${cat}">
+    <div class="task-card ${isBonus?'bonus-card':''}" id="session-card-${domId}">
       <div class="cat-tag" style="background:${catData.color}">${catData.tag}</div>
       <span class="mode-tag ${modeClass}">${modeLabel}</span>
       <h2>${topicClean}${isMastered(topicClean) ? ' <span class="mastered-badge">✓ padroneggiato</span>' : ''}</h2>
@@ -1171,12 +1174,18 @@ function render(){
   // --- Sezione bonus: sbloccata solo dopo aver completato la sessione principale di oggi ---
   let bonusSectionHtml = '';
   if (doneToday){
-    const otherCats = ['comune','pecs','dtd2','informatico'].filter(c => c !== cat);
+    // In modalità focus, la bonus non propone altri concorsi: fa proseguire ANCORA sul concorso in focus
+    const otherCats = state.focusMode
+      ? [cat]
+      : ['comune','pecs','dtd2','informatico'].filter(c => c !== cat);
     const bonusCardsHtml = otherCats.map(c => buildSessionCard(c, true)).join('');
+    const bonusIntroText = state.focusMode
+      ? `Sei in modalità focus su ${CATS[cat].label} — hai già fatto quella di oggi, se vuoi continuare ad affondare eccone un'altra sullo stesso concorso. Facoltativo, non tocca lo streak.`
+      : `Hai già fatto quella di oggi — se vuoi sfruttare il tempo extra, avanti anche su un'altra materia. Facoltativo, non tocca lo streak.`;
     bonusSectionHtml = `
       <div class="bonus-section">
         <div class="eyebrow">Sessione bonus — hai tempo in più oggi? 🚀</div>
-        <p class="bonus-intro">Hai già fatto quella di oggi — se vuoi sfruttare il tempo extra, avanti anche su un'altra materia. Facoltativo, non tocca lo streak.</p>
+        <p class="bonus-intro">${bonusIntroText}</p>
         ${bonusCardsHtml}
       </div>`;
   }
