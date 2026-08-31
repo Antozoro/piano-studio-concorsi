@@ -843,6 +843,11 @@ let activeQuiz = null; // stato del mini-test in corso, non persistito finché n
 
 function buildSessionCard(cat, isBonus){
   const catData = CATS[cat];
+  if(!catData){
+    // Categoria orfana/sconosciuta (dato storico incoerente): mostro un avviso
+    // invece di far crashare l'intera pagina.
+    return `<div class="task-card"><p class="hint">Sessione non mostrabile — categoria "${cat}" non più riconosciuta (probabile dato storico da prima di un aggiornamento). Nessun impatto sugli altri dati.</p></div>`;
+  }
   const domId = isBonus ? `${cat}-bonus` : cat;
   const todayKey = dateKey(new Date());
   const doneState = isBonus
@@ -1178,6 +1183,31 @@ function migrateOldPecsCategory(){
   if(state.indices && state.indices.pecspre === undefined) state.indices.pecspre = 0;
   if(state.indices && state.indices.pecsscritto === undefined) state.indices.pecsscritto = 0;
   if(state.focusMode === 'pecs') state.focusMode = 'pecspre';
+
+  // Migro anche lo storico: sessioni già completate con la vecchia categoria unica "pecs"
+  // devono puntare a "pecspre", altrimenti il tracker va in errore cercando una categoria
+  // che non esiste più (mostrando "Caricamento pratiche…" bloccato per sempre).
+  if(state.log){
+    Object.keys(state.log).forEach(k=>{
+      if(state.log[k] && state.log[k].cat === 'pecs') state.log[k].cat = 'pecspre';
+    });
+  }
+  if(state.bonusLog){
+    Object.keys(state.bonusLog).forEach(dKey=>{
+      const dayEntry = state.bonusLog[dKey];
+      if(dayEntry && dayEntry.pecs !== undefined){
+        dayEntry.pecspre = dayEntry.pecs;
+        delete dayEntry.pecs;
+      }
+    });
+  }
+  if(state.customLog){
+    Object.keys(state.customLog).forEach(dKey=>{
+      (state.customLog[dKey] || []).forEach(entry=>{
+        if(entry && entry.cat === 'pecs') entry.cat = 'pecspre';
+      });
+    });
+  }
 }
 
 async function saveState(){
