@@ -1203,8 +1203,12 @@ function render(){
   const key = dateKey(today);
   const cat = effectiveDayCategory(today);
   const doneToday = !!state.log[key];
+  // Se hai già completato la sessione di oggi PRIMA di cambiare focus, la card principale
+  // deve restare fissa su quello che hai davvero fatto — non seguire il nuovo focus,
+  // altrimenti si confonde con la bonus e mostra due volte lo stesso argomento.
+  const mainCat = doneToday ? state.log[key].cat : cat;
 
-  const mainCardHtml = buildSessionCard(cat, false);
+  const mainCardHtml = buildSessionCard(mainCat, false);
 
   // --- Sezione bonus: sbloccata solo dopo aver completato la sessione principale di oggi ---
   let bonusSectionHtml = '';
