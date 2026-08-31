@@ -14,6 +14,7 @@
     --stamp: #B23B2E;
     --comune: #A8792B;
     --pecs: #2C4A6E;
+    --pecs2: #4A7BAD;
     --dtd2: #1F6F5C;
     --informatico: #6B6558;
   }
@@ -607,15 +608,22 @@ const CATS = {
       'Simulazione quiz — materie comuni (quiz Concorsando)'
     ]
   },
-  pecs: {
-    label: 'Funzionario PECS — INPS',
-    tag: 'PECS · 1.695 POSTI',
+  pecspre: {
+    label: 'PECS — Preselezione',
+    tag: 'PECS PRESEL. · 1.695 POSTI',
     color: 'var(--pecs)',
     topics: [
       'Comprensione e ragionamento verbale (quiz Concorsando)',
       'Cultura generale (quiz Concorsando)',
       'Informatica (quiz Concorsando)',
-      'Logica (quiz Concorsando)',
+      'Logica (quiz Concorsando)'
+    ]
+  },
+  pecsscritto: {
+    label: 'PECS — Scritto',
+    tag: 'PECS SCRITTO · 1.695 POSTI',
+    color: 'var(--pecs2)',
+    topics: [
       'Diritto del lavoro e della previdenza (manuale, non su Concorsando — materia dello scritto)',
       'Legislazione sociale (manuale, non su Concorsando — materia dello scritto)',
       'Pianificazione e controllo di gestione (manuale, non su Concorsando — materia dello scritto)',
@@ -761,11 +769,11 @@ function isoWeek(d){
 function dayCategory(d){
   const day = d.getDay();
   if(day===1) return 'comune';
-  if(day===2) return 'pecs';
+  if(day===2) return 'pecspre';
   if(day===3) return 'dtd2';
-  if(day===4) return 'pecs';
+  if(day===4) return 'pecspre';
   if(day===5) return 'dtd2';
-  if(day===6) return (isoWeek(d) % 2 === 0) ? 'pecs' : 'dtd2';
+  if(day===6) return (isoWeek(d) % 2 === 0) ? 'pecspre' : 'dtd2';
   return 'informatico'; // Sunday
 }
 // Se è attiva la modalità focus, sovrascrive la rotazione automatica per QUALSIASI giorno
@@ -789,11 +797,11 @@ const SUPABASE_URL = 'https://qvtrbloiykgimhinvpvj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2dHJibG9peWtnaW1oaW52cHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDIyMDgsImV4cCI6MjA5OTU3ODIwOH0.ghPTJ8pOnrteQbvksuDwdn-LKj9SBeppSYlj3uOmwgI';
 const USER_ID = 'antonio';
 
-let state = { indices:{comune:0,pecs:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
+let state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
 
 function getAllTopicsList(){
   const list = [];
-  ['comune','pecs','dtd2','informatico'].forEach(cat=>{
+  ['comune','pecspre','pecsscritto','dtd2','informatico'].forEach(cat=>{
     const catData = CATS[cat];
     catData.topics.forEach(topic=>{
       const { topicClean } = computeModeInfo(topic, catData);
@@ -1153,6 +1161,23 @@ async function loadState(){
     // niente rete o Supabase non raggiungibile: si resta con la cache locale già caricata sopra
     console.error('Sync da Supabase non riuscita, uso la copia locale', e);
   }
+
+  migrateOldPecsCategory();
+}
+
+// Chi aveva progressi salvati con la vecchia categoria unica "pecs" (prima della divisione in
+// Preselezione/Scritto): sposta l'indice della coda su "pecspre" (dove si trovava), senza
+// perdere nulla — punteggi e cronologia restano intatti perché sono legati al nome della
+// materia, non alla categoria.
+function migrateOldPecsCategory(){
+  if(state.indices && state.indices.pecs !== undefined){
+    if(state.indices.pecspre === undefined) state.indices.pecspre = state.indices.pecs;
+    if(state.indices.pecsscritto === undefined) state.indices.pecsscritto = 0;
+    delete state.indices.pecs;
+  }
+  if(state.indices && state.indices.pecspre === undefined) state.indices.pecspre = 0;
+  if(state.indices && state.indices.pecsscritto === undefined) state.indices.pecsscritto = 0;
+  if(state.focusMode === 'pecs') state.focusMode = 'pecspre';
 }
 
 async function saveState(){
@@ -1187,7 +1212,7 @@ function render(){
     // In modalità focus, la bonus non propone altri concorsi: fa proseguire ANCORA sul concorso in focus
     const otherCats = state.focusMode
       ? [cat]
-      : ['comune','pecs','dtd2','informatico'].filter(c => c !== cat);
+      : ['comune','pecspre','pecsscritto','dtd2','informatico'].filter(c => c !== cat);
     const bonusCardsHtml = otherCats.map(c => buildSessionCard(c, true)).join('');
     const bonusIntroText = state.focusMode
       ? `Sei in modalità focus su ${CATS[cat].label} — hai già fatto quella di oggi, se vuoi continuare ad affondare eccone un'altra sullo stesso concorso. Facoltativo, non tocca lo streak.`
@@ -1202,9 +1227,9 @@ function render(){
 
   // --- Sezione custom: sempre disponibile, per registrare studio fatto per conto proprio (es. Mininterno) ---
   const allTopics = getAllTopicsList();
-  const topicsByCat = {comune:[], pecs:[], dtd2:[], informatico:[]};
+  const topicsByCat = {comune:[], pecspre:[], pecsscritto:[], dtd2:[], informatico:[]};
   allTopics.forEach(t => topicsByCat[t.cat].push(t));
-  const customOptionsHtml = ['comune','pecs','dtd2','informatico'].map(c=>{
+  const customOptionsHtml = ['comune','pecspre','pecsscritto','dtd2','informatico'].map(c=>{
     const opts = topicsByCat[c].map(t => `<option value="${c}|||${t.topicClean.replace(/"/g,'&quot;')}">${t.topicClean}</option>`).join('');
     return `<optgroup label="${CATS[c].label}">${opts}</optgroup>`;
   }).join('');
@@ -1249,7 +1274,7 @@ function render(){
   }
 
   let progressHtml = '';
-  ['comune','pecs','dtd2','informatico'].forEach(c=>{
+  ['comune','pecspre','pecsscritto','dtd2','informatico'].forEach(c=>{
     const cd = CATS[c];
     const done = state.indices[c] || 0;
     const customCount = categoryCustomCount(c);
@@ -1279,7 +1304,7 @@ function render(){
   let weekDaysDone = 0;
   let weekScoreSum = 0, weekScoreCount = 0;
   let weekBonusTotal = 0;
-  const weekBonusByCat = {comune:0, pecs:0, dtd2:0, informatico:0};
+  const weekBonusByCat = {comune:0, pecspre:0, pecsscritto:0, dtd2:0, informatico:0};
   for(let i=0;i<7;i++){
     const d = new Date(weekMonday);
     d.setDate(weekMonday.getDate()+i);
@@ -1391,7 +1416,7 @@ function render(){
     focusBarHtml = `<div class="focus-bar">
       <span class="focus-label">🔄 Rotazione automatica attiva</span>
       <span class="focus-btns">
-        ${['comune','pecs','dtd2','informatico'].map(c=>`<button class="focus-choice-btn" data-focus="${c}" style="border-color:${CATS[c].color}; color:${CATS[c].color}">${CATS[c].tag}</button>`).join('')}
+        ${['comune','pecspre','pecsscritto','dtd2','informatico'].map(c=>`<button class="focus-choice-btn" data-focus="${c}" style="border-color:${CATS[c].color}; color:${CATS[c].color}">${CATS[c].tag}</button>`).join('')}
       </span>
     </div>`;
   }
@@ -1416,7 +1441,8 @@ function render(){
 
     <div class="legend">
       <span><span class="dot" style="background:${CATS.comune.color}"></span>Comune</span>
-      <span><span class="dot" style="background:${CATS.pecs.color}"></span>PECS</span>
+      <span><span class="dot" style="background:${CATS.pecspre.color}"></span>PECS Presel.</span>
+      <span><span class="dot" style="background:${CATS.pecsscritto.color}"></span>PECS Scritto</span>
       <span><span class="dot" style="background:${CATS.dtd2.color}"></span>DTD2</span>
       <span><span class="dot" style="background:${CATS.informatico.color}"></span>Informatico (backup)</span>
     </div>
@@ -1451,7 +1477,7 @@ function render(){
     </div>
 
     <div class="footer">
-      Sabato si alterna tra PECS e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
+      Sabato si alterna tra PECS Preselezione e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
       Per le simulazioni usa il simulatore quiz su <a href="https://www.concorsando.it" target="_blank" rel="noopener">Concorsando.it</a>.
       <br><br>
       ${(typeof Notification !== 'undefined' && Notification.permission === 'granted')
@@ -1646,7 +1672,7 @@ async function saveCustomSession(){
 
 async function resetProgress(){
   if(!confirm('Reimpostare tutti i progressi salvati? Questa azione non si può annullare.')) return;
-  state = { indices:{comune:0,pecs:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
+  state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
   await saveState();
   render();
 }
