@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano di Studio — Pratiche in corso</title>
+<style>
+  :root{
+    --paper: #E7E2D6;
+    --paper-light: #F1EDE2;
+    --ink: #2B2B28;
+    --ink-soft: #5C574C;
+    --line: #C9C2AE;
+    --stamp: #B23B2E;
+    --comune: #A8792B;
+    --pecs: #2C4A6E;
+    --dtd2: #1F6F5C;
+    --informatico: #6B6558;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 24px 16px 60px;
+    background-image:
+      linear-gradient(var(--paper) 0%, var(--paper) 100%);
+  }
+  .sheet{
+    max-width: 720px;
+    margin: 0 auto;
+    background: var(--paper-light);
+    border: 1px solid var(--line);
+    box-shadow: 0 2px 0 var(--line), 0 8px 24px rgba(43,43,40,0.08);
+  }
+  .header{
+    padding: 22px 26px 16px;
+    border-bottom: 2px solid var(--focus-accent, var(--ink));
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .header h1{
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    letter-spacing: 0.3px;
+    margin: 0 0 4px;
+  }
+  .header .sub{
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.4px;
+  }
+  .protocollo{
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-align:right;
+    line-height: 1.5;
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+  .streak{
+    margin-top: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--stamp);
+  }
+  .streak.streak-zero{
+    color: var(--ink-soft);
+    font-weight: 400;
+    font-style: italic;
+  }
+  .week-summary{
+    padding: 10px 26px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .week-summary b{ color: var(--ink); }
+  .focus-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap: 8px;
+    padding: 10px 26px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .focus-bar.focus-active{
+    background: var(--paper);
+    font-weight: 600;
+  }
+  .focus-btns{ display:flex; gap:6px; flex-wrap:wrap; }
+  .focus-choice-btn{
+    background: none;
+    border: 1.5px solid var(--line);
+    padding: 4px 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .focus-choice-btn:hover{ opacity: 0.75; }
+  .reminder-on{
+    font-size: 11px;
+    color: var(--dtd2);
+    font-weight: 600;
+  }
+  .quiz-flag{
+    color: var(--stamp);
+    font-weight: 600;
+  }
+  .month{ padding: 4px 26px 22px; border-bottom: 1px solid var(--line); }
+  .month-header{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .month-title{ margin: 0; }
+  .back-today{
+    color: var(--ink-soft);
+    text-decoration: underline;
+    font-style: normal;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 10.5px;
+    margin-left: 6px;
+  }
+  .nav-btn{
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .nav-btn:hover{ border-color: var(--ink); }
+  .month-grid{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .month-dow{
+    text-align:center;
+    font-size: 9.5px;
+    color: var(--ink-soft);
+    letter-spacing: 0.4px;
+    padding-bottom: 4px;
+  }
+  .month-cell{
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    background: var(--paper-light);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: 3px;
+    position: relative;
+  }
+  .month-cell.empty{ border: none; background: transparent; }
+  .month-cell.today{ border-color: var(--focus-accent, var(--ink)); border-width: 1.5px; }
+  .month-daynum{ font-size: 10px; color: var(--ink-soft); }
+  .month-dots{ display:flex; gap: 2px; flex-wrap: wrap; justify-content:center; max-width: 100%; }
+  .month-dot{ width: 6px; height:6px; border-radius:50%; }
+  .month-dot-bonus{ opacity: 0.75; }
+  .month-dot-custom{ opacity: 0.75; box-shadow: 0 0 0 1px var(--ink) inset; }
+  .month-cell.clickable{ cursor: pointer; }
+  .month-cell.clickable:hover{ border-color: var(--ink); }
+  .month-cell.selected{ background: var(--paper); border-color: var(--ink); border-width: 1.5px; }
+  .score-cumulative{
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .history-toggle-btn{
+    background:none; border:none; padding:0;
+    color: var(--pecs);
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: 11.5px;
+    cursor: pointer;
+  }
+  .score-history-list{
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin: 4px 0 10px;
+    padding-left: 10px;
+    border-left: 2px solid var(--line);
+  }
+  .history-row{ padding: 2px 0; }
+  .day-detail{
+    margin-top: 14px;
+    padding: 14px;
+    background: var(--paper-light);
+    border: 1px solid var(--ink);
+  }
+  .day-detail-title{
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-transform: capitalize;
+  }
+  .day-detail-row{
+    font-size: 12px;
+    color: var(--ink);
+    padding: 3px 0;
+  }
+  .day-detail-tag{
+    display:inline-block;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: white;
+    padding: 1px 6px;
+    margin-right: 6px;
+  }
+  .day-detail-empty{
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .day-detail-scores-title{
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin: 10px 0 4px;
+  }
+  .custom-section{
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+  }
+  .custom-form{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items:center;
+  }
+  .custom-select{
+    padding: 7px 8px;
+    border: 1px solid var(--line);
+    background: var(--paper-light);
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--ink);
+    max-width: 260px;
+  }
+  .custom-select-source{ max-width: 140px; }
+  .legend{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 14px 26px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    color: var(--ink-soft);
+  }
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  .hero{
+    padding: 26px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero .eyebrow{
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .task-card{
+    position: relative;
+    border: 1.5px solid var(--ink);
+    padding: 20px;
+    background: var(--paper);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .task-card.bonus-card{
+    border-style: dashed;
+    border-color: var(--ink-soft);
+  }
+  .bonus-section{
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+  }
+  .bonus-intro{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 4px 0 14px;
+    line-height: 1.5;
+  }
+  .task-card .cat-tag{
+    display:inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 3px 8px;
+    color: white;
+    margin-bottom: 10px;
+    margin-right: 6px;
+  }
+  .mode-tag{
+    display:inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    margin-bottom: 10px;
+    border: 1.5px solid;
+  }
+  .mode-tag.mode-quiz{
+    color: var(--ink);
+    border-color: var(--ink);
+    background: transparent;
+  }
+  .mode-tag.mode-manual{
+    color: var(--stamp);
+    border-color: var(--stamp);
+    background: transparent;
+  }
+  .task-card h2{
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 19px;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .mastered-badge{
+    display:inline-block;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--dtd2);
+    border: 1.5px solid var(--dtd2);
+    padding: 2px 7px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .task-card p.hint{
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+  }
+  .btn{
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--ink);
+    color: var(--paper-light);
+    border: none;
+    padding: 10px 18px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+  .btn:hover{ opacity:0.88; }
+  .btn.primary-action:not(.done){
+    background: var(--focus-accent, var(--ink));
+  }
+  .btn.done{
+    background: transparent;
+    color: var(--stamp);
+    border: 1.5px solid var(--stamp);
+  }
+  .btn.pdf-btn{
+    display:inline-block;
+    text-decoration:none;
+    background: var(--stamp);
+    margin-right: 8px;
+  }
+  .btn.pdf-btn:hover{ opacity: 0.88; }
+  .btn.quiz-btn{
+    display:inline-block;
+    background: var(--pecs);
+    margin-right: 8px;
+    margin-bottom: 10px;
+  }
+  .btn.small{
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .score-entry{
+    display:flex;
+    align-items:center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 10px 0 14px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .score-entry input{
+    width: 60px;
+    padding: 5px 6px;
+    border: 1px solid var(--line);
+    background: var(--paper-light);
+    font-family: inherit;
+    font-size: 12.5px;
+  }
+  .score-history{
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+    font-family: 'Courier New', monospace;
+  }
+  .score-trend{
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  .quiz-box{
+    margin-top: 4px;
+  }
+  .quiz-progress{
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 8px;
+  }
+  .quiz-question{
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .quiz-options{
+    display:flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .quiz-opt{
+    text-align:left;
+    padding: 10px 12px;
+    border: 1.5px solid var(--line);
+    background: var(--paper-light);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .quiz-opt:hover:not(:disabled){ border-color: var(--ink); }
+  .quiz-opt.correct{
+    border-color: var(--dtd2);
+    background: var(--dtd2);
+    color: white;
+  }
+  .quiz-opt.wrong{
+    border-color: var(--stamp);
+    background: var(--stamp);
+    color: white;
+  }
+  .quiz-opt:disabled{ cursor: default; }
+  .quiz-result-score{
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .stamp{
+    position:absolute;
+    top: 16px;
+    right: 16px;
+    width: 78px;
+    height: 78px;
+    border: 3px solid var(--stamp);
+    border-radius: 50%;
+    color: var(--stamp);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    transform: rotate(-14deg) scale(0);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.25s;
+    pointer-events:none;
+  }
+  .stamp.show{
+    transform: rotate(-14deg) scale(1);
+    opacity: 0.92;
+  }
+
+  .week{ padding: 22px 26px; border-bottom: 1px solid var(--line); }
+  .week .eyebrow{
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--ink-soft); margin-bottom: 12px;
+  }
+  .week-grid{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .day-chip{
+    border: 1px solid var(--line);
+    padding: 8px 4px;
+    text-align:center;
+    background: var(--paper-light);
+  }
+  .day-chip .dname{
+    font-size: 10px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  .day-chip .mark{
+    width: 16px; height:16px;
+    border-radius:50%;
+    margin: 0 auto;
+    border: 1.5px solid var(--line);
+  }
+  .day-chip.today{ border-color: var(--focus-accent, var(--ink)); border-width: 1.5px; }
+  .day-chip.done .mark{ border-color: transparent; }
+
+  .progress{ padding: 22px 26px 8px; }
+  .progress .eyebrow{
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--ink-soft); margin-bottom: 14px;
+  }
+  .prow{ margin-bottom: 14px; }
+  .prow .plabel{
+    display:flex; justify-content:space-between;
+    font-size: 12.5px; margin-bottom: 5px;
+  }
+  .prow .plabel .name{ font-weight:600; }
+  .prow .plabel .count{ font-family:'Courier New',monospace; color:var(--ink-soft); font-size:11.5px;}
+  .count-main{ font-weight:700; color: var(--ink); font-size: 13px; }
+  .count-detail{ color: var(--ink-soft); }
+  .bar-track{
+    height: 8px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+  }
+  .bar-fill{ height:100%; }
+
+  .footer{
+    padding: 18px 26px 24px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .footer a{ color: var(--ink); }
+  .reset-link{
+    display:inline-block;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    padding:0;
+    font-family: inherit;
+  }
+  .loading{ padding: 40px 26px; text-align:center; color: var(--ink-soft); font-size:13px; }
+
+  @media (max-width: 480px){
+    .header{flex-direction:column;}
+    .protocollo{text-align:left;}
+    .streak{margin-top:6px;}
+    .week-grid{gap:4px;}
+    .day-chip{padding:6px 2px;}
+    .day-chip .dname{font-size:9px;}
+    .month-grid{gap:3px;}
+    .month-daynum{font-size:9px;}
+    .month-header{gap:8px;}
+  }
+</style>
+</head>
+<body>
+  <div class="sheet" id="sheet">
+    <div class="loading" id="loading">Caricamento pratiche…</div>
+  </div>
+
+<script>
+const CATS = {
+  comune: {
+    label: 'Fondamenta comuni',
+    tag: 'BASE COMUNE',
+    color: 'var(--comune)',
+    topics: [
+      'Inglese (comune a tutti e 3 — Concorsando)',
+      'Data privacy e sicurezza informatica / GDPR (comune a DTD2 e Informatico — Concorsando)',
+      'Ripasso Inglese + Privacy/GDPR (quiz Concorsando)',
+      'Simulazione quiz — materie comuni (quiz Concorsando)'
+    ]
+  },
+  pecs: {
+    label: 'Funzionario PECS — INPS',
+    tag: 'PECS · 1.695 POSTI',
+    color: 'var(--pecs)',
+    topics: [
+      'Comprensione e ragionamento verbale (quiz Concorsando)',
+      'Cultura generale (quiz Concorsando)',
+      'Informatica (quiz Concorsando)',
+      'Logica (quiz Concorsando)',
+      'Diritto del lavoro e della previdenza (manuale, non su Concorsando — materia dello scritto)',
+      'Legislazione sociale (manuale, non su Concorsando — materia dello scritto)',
+      'Pianificazione e controllo di gestione (manuale, non su Concorsando — materia dello scritto)',
+      'Organizzazione e funzionamento della pubblica amministrazione (manuale, non su Concorsando — materia dello scritto)',
+      'Comprensione testi tecnico-giuridici — metodo per lo scritto (manuale, non su Concorsando)',
+      'Quesiti situazionali PECS — metodo (manuale, non su Concorsando)'
+    ]
+  },
+  dtd2: {
+    label: 'Specialista DTD2 — PCM',
+    tag: 'DTD2 · 50 POSTI',
+    color: 'var(--dtd2)',
+    topics: [
+      'Ordinamento della Presidenza del Consiglio dei ministri (quiz Concorsando)',
+      'Elementi di comunicazione pubblica e istituzionale nella PA (quiz Concorsando)',
+      'Project management e Program management (quiz Concorsando)',
+      'Principi di gestione dei sistemi informativi (quiz Concorsando)',
+      'Digital Marketing e Social Media (quiz Concorsando)',
+      'PNRR — misure sulla digitalizzazione (quiz Concorsando)',
+      'Disciplina degli appalti pubblici D.Lgs. 36/2023 (quiz Concorsando)',
+      'Elementi di intelligenza artificiale (quiz Concorsando)',
+      'Quesiti situazionali DTD2 (quiz Concorsando)'
+    ]
+  },
+  informatico: {
+    label: 'Assistente Informatico — INPS (backup)',
+    tag: 'BACKUP · 499 POSTI',
+    color: 'var(--informatico)',
+    topics: [
+      'Informatica di base (quiz Concorsando)',
+      'Conoscenza strumenti office automation (quiz Concorsando)',
+      'Sistemi operativi Linux e Windows — Server e Client (quiz Concorsando)',
+      'Database relazionali (quiz Concorsando)',
+      'Fondamenti di sistemi, reti locali e geografiche (quiz Concorsando)',
+      'Reti multimediali e smart working (quiz Concorsando)',
+      'Application server e componenti middleware (quiz Concorsando)',
+      'Gestione di sistemi di backup e recovery (quiz Concorsando)',
+      'Linguaggi di programmazione (quiz Concorsando)',
+      'Trasparenza, anticorruzione e privacy (quiz Concorsando)',
+      'CAD — Codice Amministrazione Digitale (quiz Concorsando)',
+      'Nozioni di diritto amministrativo (quiz Concorsando)',
+      'Ordinamento del lavoro alle dipendenze della PA (quiz Concorsando)',
+      'Principi di Intelligenza Artificiale (quiz Concorsando)'
+    ]
+  }
+};
+
+const QUESTION_BANK = {
+  'Diritto del lavoro e della previdenza': [
+    {q:'Quale articolo della Costituzione fonda la Repubblica sul lavoro?', o:['Art. 4','Art. 1','Art. 36','Art. 97'], a:1},
+    {q:'Cosa regola in particolare lo Statuto dei Lavoratori (L. 300/1970) in tema di licenziamenti?', o:['L\'art. 18','L\'art. 36','L\'art. 2094 c.c.','L\'art. 38 Cost.'], a:0},
+    {q:'Nella PA, l\'art. 36 D.Lgs. 165/2001 consente contratti flessibili solo per:', o:['Esigenze ordinarie','Esigenze esclusivamente temporanee o eccezionali','Qualsiasi esigenza organizzativa','Sostituire il turnover ordinario'], a:1},
+    {q:'In caso di uso abusivo di contratti flessibili nella PA, il lavoratore:', o:['Ottiene la conversione automatica a tempo indeterminato','Ha diritto solo al risarcimento del danno','Viene licenziato','Non ha alcun rimedio'], a:1},
+    {q:'Il D.Lgs. 66/2003 disciplina:', o:['Il diritto di sciopero','Orario di lavoro, riposi e ferie','La previdenza sociale','La cassa integrazione'], a:1},
+    {q:'Quale legge disciplina lo sciopero nei servizi pubblici essenziali?', o:['L. 300/1970','L. 146/1990','L. 68/1999','D.Lgs. 165/2001'], a:1},
+    {q:'Il D.Lgs. 81/2008 riguarda:', o:['I contratti a termine','La sicurezza sul lavoro','Il part-time','La previdenza'], a:1},
+    {q:'Cosa attesta il DURC?', o:['Il diritto alla pensione','La regolarità contributiva','L\'iscrizione al sindacato','L\'idoneità fisica'], a:1},
+    {q:'Per chi ha iniziato a lavorare dopo il 1996, il sistema pensionistico è oggi:', o:['Retributivo','Contributivo','A capitalizzazione privata obbligatoria','A ripartizione fissa'], a:1},
+    {q:'Quale ente gestisce infortuni sul lavoro e malattie professionali?', o:['INPS','INAIL','INL','ARAN'], a:1},
+  ],
+  'Legislazione sociale': [
+    {q:'La NASpI spetta in caso di:', o:['Dimissioni volontarie senza giusta causa','Disoccupazione involontaria','Pensionamento anticipato','Maternità'], a:1},
+    {q:'Requisito contributivo minimo per la NASpI:', o:['13 settimane negli ultimi 4 anni','52 settimane nell\'ultimo anno','5 anni di contribuzione','Nessun requisito'], a:0},
+    {q:'Durata massima della NASpI:', o:['12 mesi','18 mesi','24 mesi','36 mesi'], a:2},
+    {q:'Il "décalage" della NASpI consiste in:', o:['Un aumento progressivo dell\'importo','Una riduzione del 3% al mese dopo alcuni mesi','Il blocco totale dopo 6 mesi','Un bonus una tantum'], a:1},
+    {q:'La CIGS si applica a:', o:['Crisi temporanee di breve durata','Crisi strutturali, aziende con più di 15 dipendenti','Solo microimprese','Solo al settore pubblico'], a:1},
+    {q:'L\'Assegno di Inclusione (ADI) ha sostituito:', o:['La Cassa Integrazione','Il Reddito di Cittadinanza','La NASpI','L\'assegno sociale'], a:1},
+    {q:'Il PAD nell\'ADI è:', o:['Un documento medico','Il Patto di Attivazione Digitale, condizione per l\'erogazione','Una sanzione','Un tipo di contratto'], a:1},
+    {q:'La L. 68/1999 disciplina:', o:['Le pensioni','Il collocamento mirato dei disabili','La cassa integrazione','La maternità'], a:1},
+    {q:'I "permessi 104" sono previsti da:', o:['L. 104/1992','L. 68/1999','D.Lgs. 151/2001','L. 300/1970'], a:0},
+    {q:'L\'Assegno Unico e Universale (AUU) sostiene:', o:['I disoccupati','I nuclei con figli a carico','I disabili','I pensionati'], a:1},
+  ],
+  'Pianificazione e controllo di gestione': [
+    {q:'Il D.Lgs. 150/2009 è noto come:', o:['Decreto Madia','Decreto Brunetta','Decreto Bassanini','Decreto Cassese'], a:1},
+    {q:'Il documento che apre il ciclo della performance è:', o:['La Relazione sulla Performance','Il Piano della Performance','Il PIAO','Il PTPCT'], a:1},
+    {q:'Chi valida la Relazione sulla Performance?', o:['L\'ANAC','L\'OIV','La Corte dei Conti','L\'ARAN'], a:1},
+    {q:'Il PIAO ha assorbito, tra gli altri, quale documento?', o:['Il bilancio di previsione','Il PTPCT','Il CCNL','Il DURC'], a:1},
+    {q:'Il D.Lgs. 286/1999 individua quante tipologie di controllo interno?', o:['Due','Tre','Quattro','Cinque'], a:2},
+    {q:'Un "centro di responsabilità" è:', o:['Un ufficio disciplinare','Un\'unità organizzativa con obiettivi e risorse assegnate','Sinonimo di centro di costo','L\'OIV'], a:1},
+    {q:'L\'efficienza, tra le "3 E", misura:', o:['Se si sta facendo la cosa giusta','Il rapporto tra risultati e risorse impiegate','La sostenibilità nel tempo','La soddisfazione dell\'utente'], a:1},
+    {q:'Il D.Lgs. 74/2017 ha rafforzato l\'attenzione su:', o:['La sola performance individuale','La performance organizzativa e l\'ascolto degli utenti','Il solo controllo contabile','La sola trasparenza'], a:1},
+    {q:'La valutazione negativa della performance individuale rileva ai fini di:', o:['Solo un avviso verbale','Responsabilità dirigenziale e disciplinare','Nessuna conseguenza','Solo la formazione'], a:1},
+    {q:'Il Piano della Performance è collegato a quale altro ciclo?', o:['Il ciclo elettorale','Il ciclo della programmazione finanziaria e di bilancio','Il ciclo delle assunzioni','Nessuno'], a:1},
+  ],
+  'Organizzazione e funzionamento della pubblica amministrazione': [
+    {q:'L\'art. 97 Cost. richiede l\'accesso agli impieghi pubblici tramite:', o:['Chiamata diretta','Concorso pubblico','Nomina politica','Anzianità'], a:1},
+    {q:'L\'art. 98 Cost. stabilisce che i pubblici impiegati sono:', o:['Liberi da vincoli','Al servizio esclusivo della Nazione','Sottoposti solo al datore privato','Esenti da responsabilità'], a:1},
+    {q:'Il Governo deve ottenere la fiducia delle Camere entro:', o:['24 ore','10 giorni','30 giorni','Nessun termine previsto'], a:1},
+    {q:'La crisi di governo "extraparlamentare" si verifica quando:', o:['Le Camere votano la sfiducia','Il Governo si dimette spontaneamente (es. rottura maggioranza)','Scade la legislatura','Il PdR scioglie le Camere'], a:1},
+    {q:'Il principio di sussidiarietà (art. 118 Cost.) orienta le funzioni verso:', o:['Il livello più lontano dal cittadino','Il livello più vicino al cittadino, salvo esigenze unitarie','Sempre lo Stato centrale','Solo le Regioni'], a:1},
+    {q:'Il termine generale per concludere un procedimento amministrativo (L. 241/1990) è:', o:['15 giorni','30 giorni','60 giorni','90 giorni'], a:1},
+    {q:'Il "silenzio assenso" (art. 20 L. 241/1990) significa che:', o:['Il silenzio equivale sempre a rigetto','Il silenzio, decorso il termine, equivale ad accoglimento','Il procedimento resta sospeso a tempo indeterminato','Serve sempre un provvedimento espresso'], a:1},
+    {q:'L\'annullamento d\'ufficio (art. 21-nonies) ha effetto:', o:['Solo per il futuro','Retroattivo, per vizi di legittimità originari','Nessun effetto legale','Solo su richiesta del giudice'], a:1},
+    {q:'La revoca di un provvedimento (art. 21-quinquies) si basa su:', o:['Vizi di legittimità originari','Sopravvenute ragioni di opportunità','Errori di calcolo','Richiesta del privato'], a:1},
+    {q:'Quante responsabilità distinte può avere un dipendente pubblico?', o:['2','3','5','7'], a:2},
+    {q:'Chi accerta il danno erariale (responsabilità amministrativo-contabile)?', o:['L\'ANAC','La Corte dei Conti','Il TAR','L\'OIV'], a:1},
+    {q:'Il PNA (Piano Nazionale Anticorruzione) è adottato da:', o:['Il Governo','L\'ANAC','Il Parlamento','L\'RPCT di ogni amministrazione'], a:1},
+  ],
+  'Comprensione testi tecnico-giuridici — metodo per lo scritto': [
+    {q:'Nella Sezione A della prova PECS, la soglia minima richiesta è:', o:['18/30','21/30','24/30','Non c\'è soglia'], a:1},
+    {q:'Il punteggio della Sezione A e della Sezione B:', o:['Si sommano sempre in un unico voto','Devono essere entrambi ≥21/30, non si compensano','Conta solo la più alta','Conta solo la più bassa'], a:1},
+    {q:'La prima lettura (veloce) del brano serve a:', o:['Riempire subito gli spazi vuoti','Capire l\'argomento generale e la struttura logica','Contare le parole','Individuare errori di battitura'], a:1},
+    {q:'I connettivi logici (tuttavia, quindi, salvo che) sono utili perché:', o:['Non hanno alcuna funzione','Restringono le opzioni indicando la relazione logica','Vanno sempre ignorati','Indicano la lunghezza del testo'], a:1},
+    {q:'Per rispondere ai quesiti di comprensione bisogna basarsi su:', o:['Conoscenze generali sull\'argomento','Solo quanto il brano afferma o implica necessariamente','L\'opinione personale','Il titolo del brano'], a:1},
+    {q:'Se un\'opzione crea dubbio dopo 20-30 secondi, meglio:', o:['Insistere a lungo','Scegliere la più probabile e proseguire','Saltare la domanda senza rispondere','Tornare più tardi a fine prova'], a:1},
+    {q:'I brani della Sezione A possono vertere su:', o:['Solo diritto del lavoro','Qualunque materia del programma, oltre a inglese e informatica', 'Solo inglese','Solo cultura generale'], a:1},
+    {q:'Il tempo della prova scritta PECS è:', o:['Diviso in due tempi separati per sezione','Complessivo, condiviso tra le due sezioni','Illimitato','Di soli 30 minuti totali'], a:1},
+  ],
+  'Quesiti situazionali PECS — metodo': [
+    {q:'Nei quesiti situazionali, il punteggio della risposta più efficace è:', o:['+0,375','+1','-0,50','0'], a:1},
+    {q:'La risposta "neutra" vale:', o:['+1','+0,375','0','-0,50'], a:1},
+    {q:'La risposta meno efficace vale:', o:['-1','-0,50','0','+0,375'], a:2},
+    {q:'Il profilo PECS riguarda soprattutto scenari legati a:', o:['Sviluppo software','Progettazione, erogazione e controllo dei servizi','Sicurezza informatica','Comunicazione istituzionale'], a:1},
+    {q:'Il primo passo del metodo consigliato è:', o:['Scegliere subito la risposta più lunga','Individuare l\'obiettivo implicito dello scenario','Scartare la prima opzione','Rispondere d\'istinto'], a:1},
+    {q:'Le opzioni da scartare per prime sono:', o:['Quelle intermedie','Quelle estreme (troppo rigide o troppo impulsive)','Quelle più lunghe','Quelle con termini tecnici'], a:1},
+    {q:'Il criterio guida per scegliere la risposta è:', o:['Cosa faresti nella vita privata','Cosa ci si aspetta da un funzionario pubblico in quel ruolo','La risposta più rapida da attuare','La risposta che evita ogni responsabilità'], a:1},
+    {q:'I quesiti situazionali fanno media, per la soglia 21/30, con:', o:['Nessuna, sono indipendenti','La Sezione A (comprensione testi)','La preselezione','Il colloquio orale'], a:1},
+  ],
+};
+
+const RESOURCE_LINKS = {
+  'Diritto del lavoro e della previdenza': 'https://drive.google.com/file/d/1O8F5_Dk4yym4pcB6j6nuSgqrYWclO_u7/view?usp=sharing',
+  'Legislazione sociale': 'https://drive.google.com/file/d/1l5wQFpQUhYsd4FuybhVnf7GW2-lhNBhj/view?usp=drive_link',
+  'Pianificazione e controllo di gestione': 'https://drive.google.com/file/d/1JXmFpEIxm_3cj7soD378U8e9lC7eRK2C/view?usp=drive_link',
+  'Organizzazione e funzionamento della pubblica amministrazione': 'https://drive.google.com/file/d/1pD7i_7UMfIx8Tizm0-zQZ80aTOf-38Nc/view?usp=drive_link',
+  'Comprensione testi tecnico-giuridici — metodo per lo scritto': 'https://drive.google.com/file/d/15f2MjGHy6p6wTNoR1PqwQsx5J3qgOtFH/view?usp=drive_link',
+  'Quesiti situazionali PECS — metodo': 'https://drive.google.com/file/d/1H_C65zUyzGeIJqcaNlinaxlH4aDDkz0-/view?usp=drive_link'
+};
+
+const DAY_NAMES = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+const STORAGE_KEY = 'tracker-state-v1';
+
+function pad(n){ return n<10 ? '0'+n : ''+n; }
+function dateKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function isoWeek(d){
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (date.getUTCDay() + 6) % 7;
+  date.setUTCDate(date.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(date.getUTCFullYear(),0,4));
+  const diff = (date - firstThursday) / 86400000;
+  return 1 + Math.round(diff/7);
+}
+function dayCategory(d){
+  const day = d.getDay();
+  if(day===1) return 'comune';
+  if(day===2) return 'pecs';
+  if(day===3) return 'dtd2';
+  if(day===4) return 'pecs';
+  if(day===5) return 'dtd2';
+  if(day===6) return (isoWeek(d) % 2 === 0) ? 'pecs' : 'dtd2';
+  return 'informatico'; // Sunday
+}
+// Se è attiva la modalità focus, sovrascrive la rotazione automatica per QUALSIASI giorno
+function effectiveDayCategory(d){
+  return state.focusMode || dayCategory(d);
+}
+async function setFocusMode(catOrNull){
+  state.focusMode = catOrNull;
+  await saveState();
+  render();
+}
+function mondayOf(d){
+  const day = d.getDay();
+  const diff = day===0 ? -6 : 1-day;
+  const m = new Date(d);
+  m.setDate(d.getDate()+diff);
+  return m;
+}
+
+const SUPABASE_URL = 'https://qvtrbloiykgimhinvpvj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2dHJibG9peWtnaW1oaW52cHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDIyMDgsImV4cCI6MjA5OTU3ODIwOH0.ghPTJ8pOnrteQbvksuDwdn-LKj9SBeppSYlj3uOmwgI';
+const USER_ID = 'antonio';
+
+let state = { indices:{comune:0,pecs:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
+
+function getAllTopicsList(){
+  const list = [];
+  ['comune','pecs','dtd2','informatico'].forEach(cat=>{
+    const catData = CATS[cat];
+    catData.topics.forEach(topic=>{
+      const { topicClean } = computeModeInfo(topic, catData);
+      list.push({ cat, catLabel: catData.tag, topicClean });
+    });
+  });
+  return list;
+}
+
+function computeModeInfo(topic, catData){
+  let modeClass, modeLabel, modeHint, topicClean, resourceUrl = null;
+  if (topic.includes('(quiz Concorsando)')) {
+    modeClass = 'mode-quiz';
+    modeLabel = 'ESERCITAZIONE · QUIZ SU CONCORSANDO';
+    topicClean = topic.replace(' (quiz Concorsando)', '');
+    modeHint = `Vai su Concorsando, seleziona solo questa materia (non "Tutte") e fai una sessione di quiz mirata. Rivedi ogni errore prima di chiudere — è lì che si impara, non nel punteggio.`;
+  } else if (topic.includes('(manuale, non su Concorsando')) {
+    modeClass = 'mode-manual';
+    modeLabel = 'LETTURA · NON SU CONCORSANDO';
+    topicClean = topic.replace(/ \(manuale, non su Concorsando[^)]*\)/, '');
+    resourceUrl = RESOURCE_LINKS[topicClean] || null;
+    modeHint = resourceUrl
+      ? `Questa materia non ha quiz su Concorsando — è testo da leggere e capire. Il PDF con i contenuti mirati è pronto qui sotto.`
+      : `Questa materia non ha quiz su Concorsando — è testo da leggere e capire, non da "fare". Chiedimi le fonti quando arrivi qui e te le trovo.`;
+  } else if (topic.includes('(comune a')) {
+    modeClass = 'mode-quiz';
+    modeLabel = 'ESERCITAZIONE · QUIZ SU CONCORSANDO';
+    topicClean = topic.replace(/ \(comune a[^)]*\)/, '');
+    modeHint = `Materia comune a più concorsi — quiz su Concorsando, ma i punti guadagnati valgono per più prove insieme.`;
+  } else {
+    modeClass = 'mode-quiz';
+    modeLabel = 'SESSIONE DI STUDIO';
+    topicClean = topic;
+    modeHint = `${catData.label} — circa 30–60 minuti.`;
+  }
+  return { modeClass, modeLabel, modeHint, topicClean, resourceUrl };
+}
+let activeQuiz = null; // stato del mini-test in corso, non persistito finché non si salva il risultato
+
+function buildSessionCard(cat, isBonus){
+  const catData = CATS[cat];
+  const idx = state.indices[cat] % catData.topics.length;
+  const topic = catData.topics[idx];
+  const { modeClass, modeLabel, modeHint, topicClean, resourceUrl } = computeModeInfo(topic, catData);
+
+  const todayKey = dateKey(new Date());
+  const doneState = isBonus
+    ? !!(state.bonusLog[todayKey] && state.bonusLog[todayKey][cat])
+    : !!state.log[todayKey];
+
+  const hasQuizBank = !!QUESTION_BANK[topicClean];
+  const scoreHistory = state.scores[topicClean] || [];
+  const lastScore = scoreHistory.length ? scoreHistory[scoreHistory.length-1] : null;
+  const prevScore = scoreHistory.length > 1 ? scoreHistory[scoreHistory.length-2] : null;
+
+  let interactiveHtml = '';
+  if (activeQuiz && activeQuiz.topic === topicClean && !activeQuiz.finished){
+    const q = activeQuiz.questions[activeQuiz.idx];
+    const qStats = (state.quizStats && state.quizStats[topicClean] && state.quizStats[topicClean][q._id]) || null;
+    const wrongBefore = qStats ? qStats.wrong : 0;
+    const optsHtml = q.o.map((opt,i)=>{
+      let cls = 'quiz-opt';
+      if(activeQuiz.answered){
+        if(i===q.a) cls += ' correct';
+        else if(i===activeQuiz.selected) cls += ' wrong';
+      }
+      return `<button class="${cls}" data-i="${i}" ${activeQuiz.answered?'disabled':''}>${opt}</button>`;
+    }).join('');
+    interactiveHtml = `
+      <div class="quiz-box">
+        <div class="quiz-progress">Domanda ${activeQuiz.idx+1} di ${activeQuiz.questions.length} — corrette finora: ${activeQuiz.correct}${wrongBefore>0 ? ` · <span class="quiz-flag">già sbagliata ${wrongBefore} volt${wrongBefore===1?'a':'e'} in passato</span>` : ''}</div>
+        <div class="quiz-question">${q.q}</div>
+        <div class="quiz-options">${optsHtml}</div>
+        ${activeQuiz.answered ? `<button class="btn" id="quizNextBtn">${activeQuiz.idx+1 < activeQuiz.questions.length ? 'Prossima domanda' : 'Vedi risultato'}</button>` : ''}
+      </div>`;
+  } else if (activeQuiz && activeQuiz.topic === topicClean && activeQuiz.finished){
+    const pct = Math.round((activeQuiz.correct/activeQuiz.questions.length)*100);
+    interactiveHtml = `
+      <div class="quiz-box quiz-result">
+        <div class="quiz-result-score">Risultato: ${activeQuiz.correct}/${activeQuiz.questions.length} (${pct}%)</div>
+        <button class="btn" id="quizSaveBtn">Salva risultato</button>
+        <button class="reset-link" id="quizCancelBtn">chiudi senza salvare</button>
+      </div>`;
+  } else {
+    interactiveHtml += `<p class="hint">${modeHint}</p>`;
+    if (resourceUrl){
+      interactiveHtml += `<a href="${resourceUrl}" target="_blank" rel="noopener" class="btn pdf-btn">📄 Apri il PDF</a>`;
+    }
+    if (hasQuizBank){
+      interactiveHtml += `<button class="btn quiz-btn start-quiz-btn" data-topic="${topicClean}">📝 Fai il mini-test (${QUESTION_BANK[topicClean].length} domande)</button>`;
+    }
+    if (modeClass === 'mode-quiz'){
+      interactiveHtml += `
+        <div class="score-entry">
+          <span class="score-label">Risultato quiz Concorsando:</span>
+          <input type="number" id="scoreCorrect-${cat}" min="0" placeholder="corrette">
+          <span>/</span>
+          <input type="number" id="scoreTotal-${cat}" min="1" placeholder="totali">
+          <button class="btn small save-score-btn" data-cat="${cat}" data-topic="${topicClean}">Salva</button>
+        </div>`;
+    }
+    if (lastScore){
+      const lastPct = Math.round((lastScore.correct/lastScore.total)*100);
+      let trend = '';
+      if(prevScore && prevScore.total>0){
+        const prevPct = Math.round((prevScore.correct/prevScore.total)*100);
+        const delta = lastPct - prevPct;
+        trend = delta > 0 ? ` (▲ +${delta}% rispetto al test precedente)` : delta < 0 ? ` (▼ ${delta}% rispetto al test precedente)` : ' (= invariato)';
+      }
+      const sumTotal = scoreHistory.reduce((s,e)=> s + (e.total||0), 0);
+      const isExpanded = expandedHistory.has(topicClean);
+      interactiveHtml += `<div class="score-history">Ultimo risultato: ${lastScore.correct}/${lastScore.total} (${lastPct}%)${trend}</div>`;
+      interactiveHtml += `<div class="score-cumulative">${sumTotal} domande fatte finora, in ${scoreHistory.length} session${scoreHistory.length===1?'e':'i'} · <button class="history-toggle-btn" data-topic="${topicClean}">${isExpanded?'nascondi cronologia ▴':'vedi cronologia ▾'}</button></div>`;
+      if(isExpanded){
+        const rows = scoreHistory.slice().reverse().map(e=>{
+          const ed = new Date(e.ts);
+          const dateStr = ed.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'});
+          const pct = e.total>0 ? Math.round((e.correct/e.total)*100) : 0;
+          return `<div class="history-row">${dateStr} — ${e.correct}/${e.total} (${pct}%)</div>`;
+        }).join('');
+        interactiveHtml += `<div class="score-history-list">${rows}</div>`;
+      }
+    }
+  }
+
+  const showDoneBtn = (!activeQuiz || activeQuiz.topic !== topicClean);
+  const doneBtnLabel = doneState
+    ? (isBonus ? '✓ Bonus completato oggi' : '✓ Pratica evasa oggi')
+    : (isBonus ? 'Segna come completata (bonus)' : 'Segna come completata');
+
+  return `
+    <div class="task-card ${isBonus?'bonus-card':''}" id="session-card-${cat}">
+      <div class="cat-tag" style="background:${catData.color}">${catData.tag}</div>
+      <span class="mode-tag ${modeClass}">${modeLabel}</span>
+      <h2>${topicClean}${isMastered(topicClean) ? ' <span class="mastered-badge">✓ padroneggiato</span>' : ''}</h2>
+      ${interactiveHtml}
+      ${showDoneBtn ? `
+      <button class="btn done-btn ${!isBonus?'primary-action':''} ${doneState?'done':''}" data-cat="${cat}" data-bonus="${isBonus?'1':'0'}">${doneBtnLabel}</button>
+      ${!isBonus ? `<div class="stamp ${doneState?'show':''}" id="stamp">COMPLETATO<br>${todayKey}</div>` : ''}` : ''}
+    </div>`;
+}
+let calendarViewDate = new Date(); // mese attualmente mostrato nella vista mensile, non persistito
+let expandedHistory = new Set(); // materie con cronologia punteggi espansa, non persistito
+let selectedCalendarDay = null; // dateKey del giorno cliccato nel calendario per il dettaglio, non persistito
+
+function calculateStreak(){
+  let streak = 0;
+  let d = new Date();
+  const todayKey = dateKey(d);
+  if(!state.log[todayKey]){
+    d.setDate(d.getDate()-1);
+  }
+  while(true){
+    const k = dateKey(d);
+    if(state.log[k]){
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else break;
+  }
+  return streak;
+}
+
+function monthGridCells(viewDate){
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const startWeekday = (firstOfMonth.getDay()+6)%7; // lunedì = 0
+  const cells = [];
+  for(let i=0;i<startWeekday;i++) cells.push(null);
+  for(let d=1; d<=daysInMonth; d++) cells.push(new Date(year, month, d));
+  return cells;
+}
+
+const MONTH_NAMES = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+function topicKeyOf(topic){
+  if(topic.includes('(quiz Concorsando)')) return topic.replace(' (quiz Concorsando)', '');
+  if(topic.includes('(manuale, non su Concorsando')) return topic.replace(/ \(manuale, non su Concorsando[^)]*\)/, '');
+  if(topic.includes('(comune a')) return topic.replace(/ \(comune a[^)]*\)/, '');
+  return topic;
+}
+
+function getCurrentTopicClean(cat){
+  const catData = CATS[cat];
+  const idx = state.indices[cat] % catData.topics.length;
+  const topic = catData.topics[idx];
+  return computeModeInfo(topic, catData).topicClean;
+}
+
+function categoryScoreStats(cat){
+  const cd = CATS[cat];
+  let totalPct = 0, count = 0;
+  cd.topics.forEach(t=>{
+    const key = topicKeyOf(t);
+    const arr = state.scores[key];
+    if(arr && arr.length){
+      const last = arr[arr.length-1];
+      if(last.total>0){ totalPct += (last.correct/last.total)*100; count++; }
+    }
+  });
+  if(count===0) return null;
+  return { avg: Math.round(totalPct/count), count };
+}
+
+// Criterio "padroneggiato": almeno 3 sessioni salvate, almeno 100 domande complessive nel campione,
+// e le ultime 3 sessioni consecutive tutte all'80% o più — non basta un singolo buon risultato isolato.
+function isMastered(topicClean){
+  const hist = state.scores[topicClean];
+  if(!hist || hist.length < 3) return false;
+  const sumTotal = hist.reduce((s,e)=> s + (e.total||0), 0);
+  if(sumTotal < 100) return false;
+  const lastThree = hist.slice(-3);
+  return lastThree.every(e => e.total > 0 && (e.correct/e.total) >= 0.8);
+}
+
+function categoryMasteredStats(cat){
+  const cd = CATS[cat];
+  let masteredCount = 0;
+  cd.topics.forEach(t=>{
+    const key = topicKeyOf(t);
+    if(isMastered(key)) masteredCount++;
+  });
+  return { mastered: masteredCount, total: cd.topics.length };
+}
+
+function categoryCustomCount(cat){
+  let count = 0;
+  Object.values(state.customLog).forEach(dayEntries=>{
+    dayEntries.forEach(e=>{ if(e.cat === cat) count++; });
+  });
+  return count;
+}
+
+function shuffleOptions(q){
+  const order = q.o.map((opt, i) => ({opt, i}));
+  for(let i = order.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return {
+    ...q,
+    o: order.map(x => x.opt),
+    a: order.findIndex(x => x.i === q.a)
+  };
+}
+
+function startQuiz(topicKey){
+  const bank = QUESTION_BANK[topicKey];
+  if(!bank) return;
+  const stats = (state.quizStats && state.quizStats[topicKey]) || {};
+  // ordina le domande mettendo prima quelle sbagliate più spesso in passato (ripasso mirato)
+  // e rimescola l'ordine delle opzioni ad ogni tentativo, per non far memorizzare la posizione
+  const questions = bank.map((q,i)=>({...q, _id:i}))
+    .sort((a,b)=>{
+      const wa = (stats[a._id] && stats[a._id].wrong) || 0;
+      const wb = (stats[b._id] && stats[b._id].wrong) || 0;
+      return wb - wa;
+    })
+    .map(q => ({...shuffleOptions(q), _id: q._id}));
+  activeQuiz = { topic: topicKey, questions, idx:0, correct:0, selected:null, answered:false, finished:false };
+  render();
+}
+function selectQuizAnswer(i){
+  if(!activeQuiz || activeQuiz.answered) return;
+  activeQuiz.selected = i;
+  activeQuiz.answered = true;
+  const q = activeQuiz.questions[activeQuiz.idx];
+  if(!state.quizStats) state.quizStats = {};
+  if(!state.quizStats[activeQuiz.topic]) state.quizStats[activeQuiz.topic] = {};
+  const s = state.quizStats[activeQuiz.topic][q._id] || {wrong:0, seen:0};
+  s.seen++;
+  if(i === q.a) activeQuiz.correct++;
+  else s.wrong++;
+  state.quizStats[activeQuiz.topic][q._id] = s;
+  render();
+}
+function nextQuizQuestion(){
+  if(!activeQuiz) return;
+  if(activeQuiz.idx + 1 < activeQuiz.questions.length){
+    activeQuiz.idx++;
+    activeQuiz.selected = null;
+    activeQuiz.answered = false;
+  } else {
+    activeQuiz.finished = true;
+  }
+  render();
+}
+async function saveQuizResult(){
+  if(!activeQuiz) return;
+  const key = activeQuiz.topic;
+  if(!state.scores[key]) state.scores[key] = [];
+  state.scores[key].push({ ts: Date.now(), correct: activeQuiz.correct, total: activeQuiz.questions.length });
+  await saveState();
+  activeQuiz = null;
+  render();
+}
+async function cancelQuiz(){
+  activeQuiz = null;
+  await saveState(); // salva comunque le statistiche di ripasso già accumulate
+  render();
+}
+function toggleHistoryExpand(topicClean){
+  if(expandedHistory.has(topicClean)) expandedHistory.delete(topicClean);
+  else expandedHistory.add(topicClean);
+  render();
+}
+
+async function saveManualScore(topicKey, cat){
+  const cEl = document.getElementById(`scoreCorrect-${cat}`);
+  const tEl = document.getElementById(`scoreTotal-${cat}`);
+  if(!cEl || !tEl) return;
+  const correct = parseInt(cEl.value, 10);
+  const total = parseInt(tEl.value, 10);
+  if(isNaN(correct) || isNaN(total) || total <= 0 || correct < 0 || correct > total){
+    alert('Inserisci numeri validi (corrette non può superare il totale).');
+    return;
+  }
+  if(!state.scores[topicKey]) state.scores[topicKey] = [];
+  state.scores[topicKey].push({ ts: Date.now(), correct, total });
+  await saveState();
+  render();
+}
+
+async function loadState(){
+  // prima carica la cache locale così l'interfaccia non resta vuota mentre aspetta la rete
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) state = Object.assign(state, JSON.parse(raw));
+  }catch(e){}
+
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/tracker_state?id=eq.${USER_ID}&select=state`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if(res.ok){
+      const rows = await res.json();
+      if(rows && rows[0] && rows[0].state){
+        state = Object.assign(state, rows[0].state);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+    }
+  }catch(e){
+    // niente rete o Supabase non raggiungibile: si resta con la cache locale già caricata sopra
+    console.error('Sync da Supabase non riuscita, uso la copia locale', e);
+  }
+}
+
+async function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); // cache locale immediata
+  try{
+    await fetch(`${SUPABASE_URL}/rest/v1/tracker_state`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify([{ id: USER_ID, state: state, updated_at: new Date().toISOString() }])
+    });
+  }catch(e){
+    console.error('Salvataggio su Supabase non riuscito, resta salvato solo in locale', e);
+  }
+}
+
+function render(){
+  const today = new Date();
+  const key = dateKey(today);
+  const cat = effectiveDayCategory(today);
+  const doneToday = !!state.log[key];
+
+  const mainCardHtml = buildSessionCard(cat, false);
+
+  // --- Sezione bonus: sbloccata solo dopo aver completato la sessione principale di oggi ---
+  let bonusSectionHtml = '';
+  if (doneToday){
+    const otherCats = ['comune','pecs','dtd2','informatico'].filter(c => c !== cat);
+    const bonusCardsHtml = otherCats.map(c => buildSessionCard(c, true)).join('');
+    bonusSectionHtml = `
+      <div class="bonus-section">
+        <div class="eyebrow">Sessione bonus — hai tempo in più oggi? 🚀</div>
+        <p class="bonus-intro">Hai già fatto quella di oggi — se vuoi sfruttare il tempo extra, avanti anche su un'altra materia. Facoltativo, non tocca lo streak.</p>
+        ${bonusCardsHtml}
+      </div>`;
+  }
+
+  // --- Sezione custom: sempre disponibile, per registrare studio fatto per conto proprio (es. Mininterno) ---
+  const allTopics = getAllTopicsList();
+  const topicsByCat = {comune:[], pecs:[], dtd2:[], informatico:[]};
+  allTopics.forEach(t => topicsByCat[t.cat].push(t));
+  const customOptionsHtml = ['comune','pecs','dtd2','informatico'].map(c=>{
+    const opts = topicsByCat[c].map(t => `<option value="${c}|||${t.topicClean.replace(/"/g,'&quot;')}">${t.topicClean}</option>`).join('');
+    return `<optgroup label="${CATS[c].label}">${opts}</optgroup>`;
+  }).join('');
+  const customSectionHtml = `
+    <div class="custom-section">
+      <div class="eyebrow">📌 Hai studiato per conto tuo? (es. Mininterno)</div>
+      <p class="bonus-intro">Registra qui una sessione fatta fuori dal tracker — non tocca lo streak né la coda degli argomenti, ma il punteggio entra comunque nel trend della materia e compare nel calendario.</p>
+      <div class="custom-form">
+        <select id="customTopicSelect" class="custom-select">
+          <option value="">— scegli la materia —</option>
+          ${customOptionsHtml}
+        </select>
+        <div class="score-entry">
+          <span class="score-label">Punteggio (facoltativo):</span>
+          <input type="number" id="customCorrect" min="0" placeholder="corrette">
+          <span>/</span>
+          <input type="number" id="customTotal" min="1" placeholder="totali">
+        </div>
+        <select id="customSource" class="custom-select custom-select-source">
+          <option value="">Fonte (facoltativo)</option>
+          <option value="Concorsando">Concorsando</option>
+          <option value="Mininterno">Mininterno</option>
+          <option value="Altro">Altro</option>
+        </select>
+        <button class="btn" id="saveCustomBtn">Registra sessione</button>
+      </div>
+    </div>`;
+
+  const monday = mondayOf(today);
+  let weekHtml = '';
+  for(let i=0;i<7;i++){
+    const d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    const dKey = dateKey(d);
+    const dCat = effectiveDayCategory(d);
+    const isToday = dKey === key;
+    const isDone = !!state.log[dKey];
+    weekHtml += `<div class="day-chip ${isToday?'today':''} ${isDone?'done':''}">
+      <div class="dname">${DAY_NAMES[d.getDay()]}</div>
+      <div class="mark" style="background:${isDone ? CATS[dCat].color : 'transparent'}"></div>
+    </div>`;
+  }
+
+  let progressHtml = '';
+  ['comune','pecs','dtd2','informatico'].forEach(c=>{
+    const cd = CATS[c];
+    const done = state.indices[c] || 0;
+    const customCount = categoryCustomCount(c);
+    const totalCount = done + customCount;
+    const cycle = totalCount % cd.topics.length;
+    const pct = Math.round((cycle / cd.topics.length) * 100) || (totalCount>0 ? 100 : 0);
+    const cycles = Math.floor(totalCount / cd.topics.length);
+    const stats = categoryScoreStats(c);
+    const mastered = categoryMasteredStats(c);
+    let detailParts = [`${done} in coda`];
+    if(customCount>0) detailParts.push(`${customCount} custom`);
+    if(cycles>0) detailParts.push(`${cycles}x ripasso completo`);
+    progressHtml += `<div class="prow">
+      <div class="plabel">
+        <span class="name" style="color:${cd.color}">${cd.label}</span>
+        <span class="count"><span class="count-main">${totalCount}</span> <span class="count-detail">(di cui ${detailParts.join(', ')})</span></span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${cd.color}"></div></div>
+      ${stats ? `<div class="score-trend">Media risultati: ${stats.avg}% (su ${stats.count} materie con test salvati)${mastered.mastered>0 ? ` · ✓ ${mastered.mastered}/${mastered.total} padroneggiate` : ''}</div>` : ''}
+    </div>`;
+  });
+
+  const streak = calculateStreak();
+
+  // --- Riepilogo settimanale: giorni fatti su 7 + media punteggi + bonus fatti nella settimana ---
+  const weekMonday = mondayOf(today);
+  let weekDaysDone = 0;
+  let weekScoreSum = 0, weekScoreCount = 0;
+  let weekBonusTotal = 0;
+  const weekBonusByCat = {comune:0, pecs:0, dtd2:0, informatico:0};
+  for(let i=0;i<7;i++){
+    const d = new Date(weekMonday);
+    d.setDate(weekMonday.getDate()+i);
+    const dKey = dateKey(d);
+    if(state.log[dKey]) weekDaysDone++;
+    const bonusEntry = state.bonusLog[dKey] || {};
+    Object.keys(bonusEntry).forEach(bc=>{
+      weekBonusTotal++;
+      weekBonusByCat[bc] = (weekBonusByCat[bc]||0) + 1;
+    });
+  }
+  let topBonusCat = null, topBonusCount = 0;
+  Object.entries(weekBonusByCat).forEach(([c,n])=>{
+    if(n > topBonusCount){ topBonusCount = n; topBonusCat = c; }
+  });
+  Object.values(state.scores).forEach(arr=>{
+    arr.forEach(s=>{
+      const sDate = new Date(s.ts);
+      if(sDate >= weekMonday && sDate < new Date(weekMonday.getFullYear(), weekMonday.getMonth(), weekMonday.getDate()+7)){
+        if(s.total>0){ weekScoreSum += (s.correct/s.total)*100; weekScoreCount++; }
+      }
+    });
+  });
+  const weekAvgScore = weekScoreCount>0 ? Math.round(weekScoreSum/weekScoreCount) : null;
+
+  const monthCells = monthGridCells(calendarViewDate);
+  const isCurrentMonthView = calendarViewDate.getFullYear()===today.getFullYear() && calendarViewDate.getMonth()===today.getMonth();
+  let monthHtml = '';
+  ['L','M','M','G','V','S','D'].forEach(l=> monthHtml += `<div class="month-dow">${l}</div>`);
+  monthCells.forEach(d=>{
+    if(!d){ monthHtml += `<div class="month-cell empty"></div>`; return; }
+    const dKey = dateKey(d);
+    const entry = state.log[dKey];
+    const bonusEntry = state.bonusLog[dKey] || {};
+    const bonusCats = Object.keys(bonusEntry);
+    const customEntries = state.customLog[dKey] || [];
+    const isToday = dKey === key;
+    let dotsHtml = '';
+    if(entry) dotsHtml += `<span class="month-dot" style="background:${CATS[entry.cat] ? CATS[entry.cat].color : 'var(--ink-soft)'}"></span>`;
+    bonusCats.forEach(bc=>{
+      dotsHtml += `<span class="month-dot month-dot-bonus" style="background:${CATS[bc] ? CATS[bc].color : 'var(--ink-soft)'}"></span>`;
+    });
+    customEntries.forEach(ce=>{
+      dotsHtml += `<span class="month-dot month-dot-custom" style="background:${CATS[ce.cat] ? CATS[ce.cat].color : 'var(--ink-soft)'}"></span>`;
+    });
+    monthHtml += `<div class="month-cell clickable ${isToday?'today':''} ${dKey===selectedCalendarDay?'selected':''}" data-date="${dKey}">
+      <span class="month-daynum">${d.getDate()}</span>
+      <span class="month-dots">${dotsHtml}</span>
+    </div>`;
+  });
+
+  // --- Dettaglio del giorno selezionato nel calendario (se presente) ---
+  let dayDetailHtml = '';
+  if (selectedCalendarDay){
+    const dKey = selectedCalendarDay;
+    const dDate = new Date(dKey + 'T00:00:00');
+    const dLabel = dDate.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+    const mainEntry = state.log[dKey];
+    const bonusEntry = state.bonusLog[dKey] || {};
+    const customEntries = state.customLog[dKey] || [];
+
+    let itemsHtml = '';
+    if (mainEntry){
+      itemsHtml += `<div class="day-detail-row"><span class="day-detail-tag" style="background:${CATS[mainEntry.cat]?.color || 'var(--ink-soft)'}">${CATS[mainEntry.cat]?.tag || mainEntry.cat}</span> Sessione principale — ${mainEntry.topic || '(materia non registrata, dato storico)'}</div>`;
+    }
+    Object.entries(bonusEntry).forEach(([bc, val])=>{
+      const t = (val && typeof val === 'object') ? val.topic : null;
+      itemsHtml += `<div class="day-detail-row"><span class="day-detail-tag" style="background:${CATS[bc]?.color || 'var(--ink-soft)'}">${CATS[bc]?.tag || bc}</span> Bonus — ${t || '(materia non registrata, dato storico)'}</div>`;
+    });
+    customEntries.forEach(ce=>{
+      itemsHtml += `<div class="day-detail-row"><span class="day-detail-tag" style="background:${CATS[ce.cat]?.color || 'var(--ink-soft)'}">${CATS[ce.cat]?.tag || ce.cat}</span> Custom — ${ce.topicClean}${ce.source ? ` (${ce.source})` : ''}</div>`;
+    });
+
+    // Tutti i punteggi salvati con data uguale a questo giorno, su qualunque materia
+    const dayScores = [];
+    Object.entries(state.scores).forEach(([topic, arr])=>{
+      arr.forEach(e=>{
+        if(dateKey(new Date(e.ts)) === dKey) dayScores.push({ topic, correct: e.correct, total: e.total });
+      });
+    });
+    const totalQuestions = dayScores.reduce((s,e)=>s+e.total,0);
+    const totalCorrect = dayScores.reduce((s,e)=>s+e.correct,0);
+
+    let scoresHtml = '';
+    if (dayScores.length){
+      scoresHtml = `<div class="day-detail-scores-title">Quiz fatti quel giorno (${totalQuestions} domande, ${totalCorrect} corrette):</div>` +
+        dayScores.map(e=>`<div class="day-detail-row">${e.topic} — ${e.correct}/${e.total}</div>`).join('');
+    }
+
+    dayDetailHtml = `
+      <div class="day-detail">
+        <div class="day-detail-title">${dLabel}</div>
+        ${itemsHtml || '<div class="day-detail-empty">Nessuna sessione registrata questo giorno.</div>'}
+        ${scoresHtml}
+      </div>`;
+  }
+
+  // --- Barra di controllo modalità focus ---
+  const focusAccent = state.focusMode ? CATS[state.focusMode].color : null;
+  let focusBarHtml = '';
+  if (state.focusMode){
+    const fc = CATS[state.focusMode];
+    focusBarHtml = `<div class="focus-bar focus-active">
+      <span class="focus-label" style="color:${fc.color}">🎯 Focus: ${fc.label}</span>
+      <button class="reset-link focus-reset-btn" id="focusResetBtn">torna alla rotazione automatica</button>
+    </div>`;
+  } else {
+    focusBarHtml = `<div class="focus-bar">
+      <span class="focus-label">🔄 Rotazione automatica attiva</span>
+      <span class="focus-btns">
+        ${['comune','pecs','dtd2','informatico'].map(c=>`<button class="focus-choice-btn" data-focus="${c}" style="border-color:${CATS[c].color}; color:${CATS[c].color}">${CATS[c].tag}</button>`).join('')}
+      </span>
+    </div>`;
+  }
+
+  document.getElementById('sheet').style.setProperty('--focus-accent', focusAccent || 'var(--ink)');
+  document.getElementById('sheet').innerHTML = `
+    <div class="header">
+      <div>
+        <h1>Piano di Studio — Pratiche in corso</h1>
+        <div class="sub">3 concorsi attivi · 30–60 min al giorno</div>
+      </div>
+      <div class="protocollo">
+        PROT. N. ${key.replace(/-/g,'/')}<br>
+        ${DAY_NAMES[today.getDay()]}
+        ${streak>0 ? `<div class="streak">🔥 ${streak} giorn${streak===1?'o':'i'} di fila</div>` : `<div class="streak streak-zero">Inizia oggi la serie</div>`}
+      </div>
+    </div>
+
+    <div class="week-summary">
+      Questa settimana: <b>${weekDaysDone}/7</b> giorni fatti${weekAvgScore!==null ? ` · media punteggi: <b>${weekAvgScore}%</b> (${weekScoreCount} test salvati)` : ' · nessun punteggio salvato ancora questa settimana'}${weekBonusTotal>0 ? ` · <b>${weekBonusTotal}</b> session${weekBonusTotal===1?'e':'i'} bonus${topBonusCat ? ` (più impegno su ${CATS[topBonusCat].label})` : ''}` : ''}
+    </div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:${CATS.comune.color}"></span>Comune</span>
+      <span><span class="dot" style="background:${CATS.pecs.color}"></span>PECS</span>
+      <span><span class="dot" style="background:${CATS.dtd2.color}"></span>DTD2</span>
+      <span><span class="dot" style="background:${CATS.informatico.color}"></span>Informatico (backup)</span>
+    </div>
+
+    ${focusBarHtml}
+
+    <div class="hero">
+      <div class="eyebrow">Sessione di oggi</div>
+      ${mainCardHtml}
+      ${bonusSectionHtml}
+      ${customSectionHtml}
+    </div>
+
+    <div class="week">
+      <div class="eyebrow">Settimana in corso</div>
+      <div class="week-grid">${weekHtml}</div>
+    </div>
+
+    <div class="month">
+      <div class="month-header">
+        <button class="nav-btn" id="prevMonthBtn">‹</button>
+        <span class="eyebrow month-title">${MONTH_NAMES[calendarViewDate.getMonth()]} ${calendarViewDate.getFullYear()}${isCurrentMonthView ? '' : ' <a href=\"#\" id=\"backTodayLink\" class=\"back-today\">torna a oggi</a>'}</span>
+        <button class="nav-btn" id="nextMonthBtn">›</button>
+      </div>
+      <div class="month-grid">${monthHtml}</div>
+      ${dayDetailHtml}
+    </div>
+
+    <div class="progress">
+      <div class="eyebrow">Avanzamento pratiche</div>
+      ${progressHtml}
+    </div>
+
+    <div class="footer">
+      Sabato si alterna tra PECS e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
+      Per le simulazioni usa il simulatore quiz su <a href="https://www.concorsando.it" target="_blank" rel="noopener">Concorsando.it</a>.
+      <br><br>
+      ${(typeof Notification !== 'undefined' && Notification.permission === 'granted')
+        ? '<span class="reminder-on">🔔 Promemoria attivo</span> ·'
+        : '<button class="reset-link" id="reminderBtn">🔔 attiva promemoria notifiche</button> ·'}
+      <button class="reset-link" id="exportBtn">esporta backup</button> ·
+      <button class="reset-link" id="importBtn">importa backup</button> ·
+      <button class="reset-link" id="resetBtn">reimposta tutti i progressi</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none">
+    </div>
+  `;
+
+  document.querySelectorAll('.done-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const btnCat = btn.dataset.cat;
+      const isBonus = btn.dataset.bonus === '1';
+      if(isBonus) toggleBonusDone(btnCat); else toggleDone();
+    });
+  });
+  document.getElementById('resetBtn').addEventListener('click', resetProgress);
+  document.getElementById('exportBtn').addEventListener('click', exportBackup);
+  document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', importBackup);
+
+  document.querySelectorAll('.start-quiz-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> startQuiz(btn.dataset.topic));
+  });
+
+  document.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=> selectQuizAnswer(parseInt(btn.dataset.i,10)));
+  });
+  const quizNextBtnEl = document.getElementById('quizNextBtn');
+  if(quizNextBtnEl) quizNextBtnEl.addEventListener('click', nextQuizQuestion);
+  const quizSaveBtnEl = document.getElementById('quizSaveBtn');
+  if(quizSaveBtnEl) quizSaveBtnEl.addEventListener('click', saveQuizResult);
+  const quizCancelBtnEl = document.getElementById('quizCancelBtn');
+  if(quizCancelBtnEl) quizCancelBtnEl.addEventListener('click', cancelQuiz);
+
+  document.querySelectorAll('.save-score-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> saveManualScore(btn.dataset.topic, btn.dataset.cat));
+  });
+
+  const saveCustomBtnEl = document.getElementById('saveCustomBtn');
+  if(saveCustomBtnEl) saveCustomBtnEl.addEventListener('click', saveCustomSession);
+
+  document.querySelectorAll('.history-toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> toggleHistoryExpand(btn.dataset.topic));
+  });
+
+  document.querySelectorAll('.month-cell.clickable').forEach(cellEl=>{
+    cellEl.addEventListener('click', ()=>{
+      const d = cellEl.dataset.date;
+      selectedCalendarDay = (selectedCalendarDay === d) ? null : d;
+      render();
+    });
+  });
+
+  document.getElementById('prevMonthBtn').addEventListener('click', ()=>{
+    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth()-1, 1);
+    selectedCalendarDay = null;
+    render();
+  });
+  document.getElementById('nextMonthBtn').addEventListener('click', ()=>{
+    calendarViewDate = new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth()+1, 1);
+    selectedCalendarDay = null;
+    render();
+  });
+  const backTodayEl = document.getElementById('backTodayLink');
+  if(backTodayEl) backTodayEl.addEventListener('click', (e)=>{
+    e.preventDefault();
+    calendarViewDate = new Date();
+    selectedCalendarDay = null;
+    render();
+  });
+  const reminderBtnEl = document.getElementById('reminderBtn');
+  if(reminderBtnEl) reminderBtnEl.addEventListener('click', requestReminder);
+
+  document.querySelectorAll('.focus-choice-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> setFocusMode(btn.dataset.focus));
+  });
+  const focusResetBtnEl = document.getElementById('focusResetBtn');
+  if(focusResetBtnEl) focusResetBtnEl.addEventListener('click', ()=> setFocusMode(null));
+}
+
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'backup-piano-studio-' + dateKey(new Date()) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function importBackup(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if(!parsed.indices || !parsed.log){ throw new Error('formato non valido'); }
+    state = parsed;
+    if(!state.scores) state.scores = {};
+    if(!state.quizStats) state.quizStats = {};
+    if(!state.bonusLog) state.bonusLog = {};
+    if(!state.customLog) state.customLog = {};
+    if(state.focusMode === undefined) state.focusMode = null;
+    await saveState();
+    render();
+    alert('Backup importato correttamente.');
+  }catch(e){
+    alert('File non valido: ' + e.message);
+  }
+  ev.target.value = '';
+}
+
+async function toggleDone(){
+  const today = new Date();
+  const key = dateKey(today);
+  if(state.log[key]){
+    const storedCat = state.log[key].cat;
+    delete state.log[key];
+    state.indices[storedCat] = Math.max(0, (state.indices[storedCat]||0) - 1);
+  } else {
+    const cat = effectiveDayCategory(today);
+    state.log[key] = { cat, topic: getCurrentTopicClean(cat) };
+    state.indices[cat] = (state.indices[cat]||0) + 1;
+  }
+  await saveState();
+  render();
+  if(state.log[key]){
+    const stampEl = document.getElementById('stamp');
+    if(stampEl){
+      stampEl.classList.remove('show');
+      void stampEl.offsetWidth;
+      stampEl.classList.add('show');
+    }
+  }
+}
+
+async function toggleBonusDone(cat){
+  const key = dateKey(new Date());
+  if(!state.bonusLog[key]) state.bonusLog[key] = {};
+  if(state.bonusLog[key][cat]){
+    delete state.bonusLog[key][cat];
+    state.indices[cat] = Math.max(0, (state.indices[cat]||0) - 1);
+  } else {
+    state.bonusLog[key][cat] = { topic: getCurrentTopicClean(cat) };
+    state.indices[cat] = (state.indices[cat]||0) + 1;
+  }
+  await saveState();
+  render();
+}
+
+async function saveCustomSession(){
+  const select = document.getElementById('customTopicSelect');
+  const val = select.value;
+  if(!val){
+    alert('Scegli prima una materia dal menu.');
+    return;
+  }
+  const [cat, topicClean] = val.split('|||');
+
+  const cEl = document.getElementById('customCorrect');
+  const tEl = document.getElementById('customTotal');
+  const sourceEl = document.getElementById('customSource');
+  const correctRaw = cEl.value.trim();
+  const totalRaw = tEl.value.trim();
+  const source = sourceEl.value || null;
+
+  let scoreSaved = false;
+  if(correctRaw !== '' || totalRaw !== ''){
+    const correct = parseInt(correctRaw, 10);
+    const total = parseInt(totalRaw, 10);
+    if(isNaN(correct) || isNaN(total) || total <= 0 || correct < 0 || correct > total){
+      alert('Il punteggio inserito non è valido (corrette non può superare il totale). Lascia entrambi i campi vuoti se non vuoi registrare un punteggio.');
+      return;
+    }
+    if(!state.scores[topicClean]) state.scores[topicClean] = [];
+    state.scores[topicClean].push({ ts: Date.now(), correct, total });
+    scoreSaved = true;
+  }
+
+  const key = dateKey(new Date());
+  if(!state.customLog[key]) state.customLog[key] = [];
+  state.customLog[key].push({ cat, topicClean, source, ts: Date.now() });
+
+  await saveState();
+  render();
+  alert(`Sessione registrata su "${topicClean}"${scoreSaved ? ' con punteggio salvato' : ''}. Non tocca lo streak né la coda degli argomenti.`);
+}
+
+async function resetProgress(){
+  if(!confirm('Reimpostare tutti i progressi salvati? Questa azione non si può annullare.')) return;
+  state = { indices:{comune:0,pecs:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
+  await saveState();
+  render();
+}
+
+function requestReminder(){
+  if(!('Notification' in window)){
+    alert('Il tuo browser non supporta le notifiche.');
+    return;
+  }
+  Notification.requestPermission().then(perm=>{
+    if(perm === 'granted'){
+      new Notification('Promemoria attivato ✓', { body: 'Da ora, ogni volta che apri questa pagina, ti ricorderò se non hai ancora studiato oggi.' });
+    }
+    render();
+  });
+}
+
+function maybeShowReminder(){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const todayKey = dateKey(new Date());
+  if(!state.log[todayKey]){
+    new Notification('Non hai ancora studiato oggi 🔥', { body: 'Bastano 30-60 minuti — apri la sessione di oggi nel tracker.' });
+  }
+}
+
+(async function init(){
+  await loadState();
+  render();
+  maybeShowReminder();
+})();
+</script>
+</body>
+</html>
