@@ -248,6 +248,82 @@
     color: var(--ink-soft);
     margin: 10px 0 4px;
   }
+  .analysis-section{
+    padding: 18px 26px 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .analysis-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 4px;
+  }
+  .analysis-priority{
+    margin: 14px 0;
+    padding: 10px 14px;
+    background: var(--paper);
+    border-left: 3px solid var(--stamp);
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .analysis-priority.ok{
+    border-left-color: var(--dtd2);
+  }
+  .analysis-list{
+    display:flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+  .analysis-row{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .analysis-cat-dot{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .analysis-name{ flex: 1; }
+  .mastered-badge-sm{
+    color: var(--dtd2);
+    font-weight: 700;
+    font-size: 10.5px;
+  }
+  .analysis-score{
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    min-width: 42px;
+    text-align: right;
+  }
+  .analysis-score.weak{ color: var(--stamp); }
+  .analysis-trend{
+    font-family: 'Courier New', monospace;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+    min-width: 48px;
+    text-align: right;
+  }
+  .analysis-trend.up{ color: var(--dtd2); }
+  .analysis-trend.down{ color: var(--stamp); }
+  .analysis-untested{
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+  }
+  .analysis-untested-title{ font-weight: 600; margin-bottom: 4px; }
+  .analysis-untested-list{ line-height: 1.6; }
+  .analysis-empty{
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 10px;
+  }
   .custom-section{
     margin-top: 18px;
     padding-top: 16px;
@@ -971,6 +1047,7 @@ function buildSessionCard(cat, isBonus){
 }
 let calendarViewDate = new Date(); // mese attualmente mostrato nella vista mensile, non persistito
 let expandedHistory = new Set(); // materie con cronologia punteggi espansa, non persistito
+let analysisExpanded = false; // sezione "Analisi per materia" aperta/chiusa, non persistito
 let selectedCalendarDay = null; // dateKey del giorno cliccato nel calendario per il dettaglio, non persistito
 
 function calculateStreak(){
@@ -1061,6 +1138,49 @@ function categoryCustomCount(cat){
   });
   return count;
 }
+
+// Statistiche di una singola materia: percentuale media su tutte le sessioni salvate
+// (più stabile del solo ultimo risultato), trend rispetto alla sessione precedente, conteggio.
+function getTopicStats(topicClean){
+  const hist = state.scores[topicClean];
+  if(!hist || hist.length === 0) return null;
+  const last = hist[hist.length-1];
+  const prev = hist.length > 1 ? hist[hist.length-2] : null;
+  const lastPct = last.total > 0 ? Math.round((last.correct/last.total)*100) : 0;
+  let avgSum = 0, avgCount = 0;
+  hist.forEach(e=>{ if(e.total>0){ avgSum += (e.correct/e.total)*100; avgCount++; } });
+  const avgPct = avgCount > 0 ? Math.round(avgSum/avgCount) : 0;
+  let trend = null;
+  if(prev && prev.total > 0){
+    trend = lastPct - Math.round((prev.correct/prev.total)*100);
+  }
+  return { lastPct, avgPct, trend, count: hist.length };
+}
+
+// Raccoglie tutte le materie nell'ambito scelto (solo la categoria in focus, o tutte e 5),
+// divise tra "già testate" (ordinate dalla più debole) e "mai testate".
+function buildTopicAnalysis(){
+  const scopeCats = state.focusMode
+    ? [state.focusMode]
+    : ['comune','pecspre','pecsscritto','dtd2','informatico'];
+  const tested = [];
+  const untested = [];
+  scopeCats.forEach(cat=>{
+    const cd = CATS[cat];
+    cd.topics.forEach(t=>{
+      const topicClean = computeModeInfo(t, cd).topicClean;
+      const stats = getTopicStats(topicClean);
+      if(stats){
+        tested.push({ cat, catTag: cd.tag, catColor: cd.color, topicClean, mastered: isMastered(topicClean), ...stats });
+      } else {
+        untested.push({ cat, catTag: cd.tag, catColor: cd.color, topicClean });
+      }
+    });
+  });
+  tested.sort((a,b)=> a.avgPct - b.avgPct);
+  return { tested, untested };
+}
+
 
 function shuffleOptions(q){
   const order = q.o.map((opt, i) => ({opt, i}));
@@ -1339,6 +1459,56 @@ function render(){
     </div>`;
   });
 
+  // --- Analisi per materia: dove sei debole, dove sei forte, cosa non hai ancora testato ---
+  const { tested: analysisTested, untested: analysisUntested } = buildTopicAnalysis();
+  const analysisPriority = analysisTested.filter(t => t.avgPct < 70).slice(0, 3);
+  const analysisScopeLabel = state.focusMode ? ` — ${CATS[state.focusMode].label}` : '';
+
+  let analysisInnerHtml = '';
+  if (analysisTested.length === 0 && analysisUntested.length === 0){
+    analysisInnerHtml = '<div class="analysis-empty">Nessuna materia in questo ambito.</div>';
+  } else {
+    if (analysisPriority.length){
+      analysisInnerHtml += `<div class="analysis-priority">
+        <b>⚠️ Concentrati soprattutto su:</b> ${analysisPriority.map(p=>`${p.topicClean} (${p.avgPct}%)`).join(' · ')}
+      </div>`;
+    } else if (analysisTested.length){
+      analysisInnerHtml += `<div class="analysis-priority ok"><b>✓ Nessuna materia sotto il 70%</b> — buon lavoro, continua così.</div>`;
+    }
+
+    if (analysisTested.length){
+      analysisInnerHtml += `<div class="analysis-list">`;
+      analysisTested.forEach(t=>{
+        const trendHtml = t.trend !== null
+          ? (t.trend > 0 ? `<span class="analysis-trend up">▲ +${t.trend}%</span>` : t.trend < 0 ? `<span class="analysis-trend down">▼ ${t.trend}%</span>` : `<span class="analysis-trend">=</span>`)
+          : '';
+        analysisInnerHtml += `<div class="analysis-row">
+          <span class="analysis-cat-dot" style="background:${t.catColor}" title="${t.catTag}"></span>
+          <span class="analysis-name">${t.topicClean}${t.mastered ? ' <span class="mastered-badge-sm">✓</span>' : ''}</span>
+          <span class="analysis-score ${t.avgPct<70?'weak':''}">${t.avgPct}%</span>
+          ${trendHtml}
+        </div>`;
+      });
+      analysisInnerHtml += `</div>`;
+    }
+
+    if (analysisUntested.length){
+      analysisInnerHtml += `<div class="analysis-untested">
+        <div class="analysis-untested-title">Mai testate (${analysisUntested.length}):</div>
+        <div class="analysis-untested-list">${analysisUntested.map(t=>t.topicClean).join(' · ')}</div>
+      </div>`;
+    }
+  }
+
+  const analysisSectionHtml = `
+    <div class="analysis-section">
+      <div class="analysis-header">
+        <span class="eyebrow">📊 Analisi per materia${analysisScopeLabel}</span>
+        <button class="reset-link" id="toggleAnalysisBtn">${analysisExpanded ? 'nascondi ▴' : 'mostra ▾'}</button>
+      </div>
+      ${analysisExpanded ? analysisInnerHtml : ''}
+    </div>`;
+
   const streak = calculateStreak();
 
   // --- Riepilogo settimanale: giorni fatti su 7 + media punteggi + bonus fatti nella settimana ---
@@ -1518,6 +1688,8 @@ function render(){
       ${progressHtml}
     </div>
 
+    ${analysisSectionHtml}
+
     <div class="footer">
       Sabato si alterna tra PECS Preselezione e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
       Per le simulazioni usa il simulatore quiz su <a href="https://www.concorsando.it" target="_blank" rel="noopener">Concorsando.it</a>.
@@ -1567,6 +1739,12 @@ function render(){
 
   document.querySelectorAll('.history-toggle-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> toggleHistoryExpand(btn.dataset.topic));
+  });
+
+  const toggleAnalysisBtnEl = document.getElementById('toggleAnalysisBtn');
+  if(toggleAnalysisBtnEl) toggleAnalysisBtnEl.addEventListener('click', ()=>{
+    analysisExpanded = !analysisExpanded;
+    render();
   });
 
   document.querySelectorAll('.month-cell.clickable').forEach(cellEl=>{
