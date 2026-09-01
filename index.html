@@ -269,6 +269,18 @@
   .analysis-priority.ok{
     border-left-color: var(--dtd2);
   }
+  .focus-priority-box{
+    margin: 0;
+    padding: 12px 26px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    border-left: 4px solid var(--stamp);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .focus-priority-box.ok{
+    border-left-color: var(--dtd2);
+  }
   .analysis-list{
     display:flex;
     flex-direction: column;
@@ -1462,19 +1474,37 @@ function render(){
 
   // --- Analisi per materia: dove sei debole, dove sei forte, cosa non hai ancora testato ---
   const { tested: analysisTested, untested: analysisUntested } = buildTopicAnalysis();
-  const analysisPriority = analysisTested.filter(t => t.avgPct < 70).slice(0, 3);
+  const analysisPriority = analysisTested.filter(t => t.avgPct < 80).slice(0, 3);
   const analysisScopeLabel = state.focusMode ? ` — ${CATS[state.focusMode].label}` : '';
+
+  // Con il focus attivo, l'avviso "concentrati su" va mostrato subito sotto la barra focus,
+  // ben visibile — non nascosto dietro il "mostra" della sezione analisi completa.
+  // In rotazione automatica invece resta solo dentro la sezione (37 materie sarebbero troppe da spingere in faccia).
+  let focusPriorityHtml = '';
+  if (state.focusMode){
+    if (analysisPriority.length){
+      focusPriorityHtml = `<div class="focus-priority-box">
+        <b>⚠️ Concentrati soprattutto su:</b> ${analysisPriority.map(p=>`${p.topicClean} (${p.avgPct}%)`).join(' · ')}
+      </div>`;
+    } else if (analysisTested.length){
+      focusPriorityHtml = `<div class="focus-priority-box ok"><b>✓ Nessuna materia sotto l'80%</b> in questo ambito — buon lavoro, continua così.</div>`;
+    }
+  }
 
   let analysisInnerHtml = '';
   if (analysisTested.length === 0 && analysisUntested.length === 0){
     analysisInnerHtml = '<div class="analysis-empty">Nessuna materia in questo ambito.</div>';
   } else {
-    if (analysisPriority.length){
-      analysisInnerHtml += `<div class="analysis-priority">
-        <b>⚠️ Concentrati soprattutto su:</b> ${analysisPriority.map(p=>`${p.topicClean} (${p.avgPct}%)`).join(' · ')}
-      </div>`;
-    } else if (analysisTested.length){
-      analysisInnerHtml += `<div class="analysis-priority ok"><b>✓ Nessuna materia sotto il 70%</b> — buon lavoro, continua così.</div>`;
+    // Il box priorità qui dentro si mostra solo in rotazione automatica: con focus attivo
+    // è già ben visibile sopra (focusPriorityHtml), evitiamo di ripeterlo due volte.
+    if (!state.focusMode){
+      if (analysisPriority.length){
+        analysisInnerHtml += `<div class="analysis-priority">
+          <b>⚠️ Concentrati soprattutto su:</b> ${analysisPriority.map(p=>`${p.topicClean} (${p.avgPct}%)`).join(' · ')}
+        </div>`;
+      } else if (analysisTested.length){
+        analysisInnerHtml += `<div class="analysis-priority ok"><b>✓ Nessuna materia sotto l'80%</b> — buon lavoro, continua così.</div>`;
+      }
     }
 
     if (analysisTested.length){
@@ -1486,7 +1516,7 @@ function render(){
         analysisInnerHtml += `<div class="analysis-row">
           <span class="analysis-cat-dot" style="background:${t.catColor}" title="${t.catTag}"></span>
           <span class="analysis-name">${t.topicClean}${t.mastered ? ' <span class="mastered-badge-sm">✓</span>' : ''}</span>
-          <span class="analysis-score ${t.avgPct<70?'weak':''}">${t.avgPct}%</span>
+          <span class="analysis-score ${t.avgPct<80?'weak':''}">${t.avgPct}%</span>
           ${trendHtml}
         </div>`;
       });
@@ -1661,6 +1691,7 @@ function render(){
     </div>
 
     ${focusBarHtml}
+    ${focusPriorityHtml}
 
     <div class="hero">
       <div class="eyebrow">Sessione di oggi</div>
