@@ -1777,7 +1777,7 @@ function render(){
     ${streakHeroHtml}
 
     <div class="week-summary">
-      Questa settimana: <b>${weekDaysDone}/7</b> giorni fatti${weekAvgScore!==null ? ` · media punteggi: <b>${weekAvgScore}%</b> (${weekScoreCount} test salvati)` : ' · nessun punteggio salvato ancora questa settimana'}${weekBonusTotal>0 ? ` · <b>${weekBonusTotal}</b> session${weekBonusTotal===1?'e':'i'} bonus${topBonusCat ? ` (più impegno su ${CATS[topBonusCat].label})` : ''}` : ''}
+      ${weekAvgScore!==null ? `Media punteggi questa settimana: <b>${weekAvgScore}%</b>` : 'Nessun punteggio salvato ancora questa settimana'}
     </div>
 
     <div class="legend">
