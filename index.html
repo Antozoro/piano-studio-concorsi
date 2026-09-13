@@ -135,6 +135,12 @@
     margin-top: 2px;
   }
   .streak-hero.milestone .streak-sub{ color: var(--warning); font-weight: 700; }
+  .streak-shields{
+    font-size: 11px;
+    color: var(--primary);
+    font-weight: 700;
+    margin-top: 4px;
+  }
   .streak-celebrate{
     font-size: 24px;
     flex-shrink: 0;
@@ -958,7 +964,7 @@ const SUPABASE_URL = 'https://qvtrbloiykgimhinvpvj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2dHJibG9peWtnaW1oaW52cHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDIyMDgsImV4cCI6MjA5OTU3ODIwOH0.ghPTJ8pOnrteQbvksuDwdn-LKj9SBeppSYlj3uOmwgI';
 const USER_ID = 'antonio';
 
-let state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
+let state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
 
 function getAllTopicsList(){
   const list = [];
@@ -1140,7 +1146,7 @@ function calculateStreak(){
   }
   while(true){
     const k = dateKey(d);
-    if(state.log[k]){
+    if(state.log[k] || (state.shieldedDates && state.shieldedDates.includes(k))){
       streak++;
       d.setDate(d.getDate()-1);
     } else break;
@@ -1663,12 +1669,15 @@ function render(){
       : (nextMilestone
           ? `${nextMilestone - streak} giorn${(nextMilestone-streak)===1?'o':'i'} al prossimo traguardo (${nextMilestone})`
           : 'Traguardo record personale — nessun limite superiore in vista.');
+    const shieldsCount = state.streakShields || 0;
+    const shieldsHtml = shieldsCount > 0 ? `<div class="streak-shields">🛡️ ${shieldsCount} scud${shieldsCount===1?'o':'i'} disponibil${shieldsCount===1?'e':'i'}</div>` : '';
     streakHeroHtml = `
     <div class="streak-hero tier-${streakTier} ${isStreakMilestone?'milestone':''}">
       <div class="streak-flame">🔥</div>
       <div class="streak-main">
         <div class="streak-title">${streak} giorn${streak===1?'o':'i'} di fila</div>
         <div class="streak-sub">${subText}</div>
+        ${shieldsHtml}
       </div>
       ${isStreakMilestone ? `<div class="streak-celebrate">🎉</div>` : ''}
     </div>`;
@@ -1977,6 +1986,8 @@ async function importBackup(ev){
     if(!state.bonusLog) state.bonusLog = {};
     if(!state.customLog) state.customLog = {};
     if(state.focusMode === undefined) state.focusMode = null;
+    if(state.streakShields === undefined) state.streakShields = 0;
+    if(!state.shieldedDates) state.shieldedDates = [];
     await saveState();
     render();
     alert('Backup importato correttamente.');
@@ -1989,17 +2000,43 @@ async function importBackup(ev){
 async function toggleDone(){
   const today = new Date();
   const key = dateKey(today);
+  let shieldUsedThisAction = false;
   if(state.log[key]){
     const storedCat = state.log[key].cat;
     delete state.log[key];
     state.indices[storedCat] = Math.max(0, (state.indices[storedCat]||0) - 1);
   } else {
+    // --- Scudo streak: se ieri hai saltato ma l'altro ieri lo streak era vivo, e hai
+    // almeno uno scudo disponibile, lo consuma automaticamente e "ripara" il buco di un
+    // solo giorno — copre l'imprevisto occasionale, non due giorni di fila.
+    const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+    const yesterdayKey = dateKey(yesterday);
+    const dayBefore = new Date(today); dayBefore.setDate(dayBefore.getDate()-2);
+    const dayBeforeKey = dateKey(dayBefore);
+    if(!state.shieldedDates) state.shieldedDates = [];
+    const yesterdayMissed = !state.log[yesterdayKey] && !state.shieldedDates.includes(yesterdayKey);
+    const dayBeforeWasStreak = !!state.log[dayBeforeKey] || state.shieldedDates.includes(dayBeforeKey);
+    if(yesterdayMissed && dayBeforeWasStreak && (state.streakShields||0) > 0){
+      state.shieldedDates.push(yesterdayKey);
+      state.streakShields -= 1;
+      shieldUsedThisAction = true;
+    }
+
     const cat = effectiveDayCategory(today);
     state.log[key] = { cat, topic: getCurrentTopicClean(cat) };
     state.indices[cat] = (state.indices[cat]||0) + 1;
+
+    // --- Guadagno di uno scudo nuovo se questa sessione fa raggiungere un traguardo streak ---
+    const newStreak = calculateStreak();
+    if(STREAK_MILESTONES.includes(newStreak)){
+      state.streakShields = Math.min((state.streakShields||0) + 1, 3);
+    }
   }
   await saveState();
   render();
+  if(shieldUsedThisAction){
+    alert('🛡️ Avevi saltato un giorno, ma avevi uno scudo disponibile — lo streak è salvo!');
+  }
 }
 
 async function toggleBonusDone(cat){
@@ -2056,7 +2093,7 @@ async function saveCustomSession(){
 
 async function resetProgress(){
   if(!confirm('Reimpostare tutti i progressi salvati? Questa azione non si può annullare.')) return;
-  state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null };
+  state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
   await saveState();
   render();
 }
