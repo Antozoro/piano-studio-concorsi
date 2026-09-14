@@ -835,8 +835,35 @@ const CATS = {
       'Ordinamento del lavoro alle dipendenze della PA (quiz Concorsando)',
       'Principi di Intelligenza Artificiale (quiz Concorsando)'
     ]
+  },
+  funzionarioel: {
+    label: 'Funzionario Amm.vo — Enti Locali',
+    tag: 'FUNZIONARIO EE.LL. · vari bandi',
+    color: 'var(--comune)',
+    topics: [
+      // Riciclata: stesso contenuto già scritto per PECS Scritto (L. 241/1990, procedimento,
+      // dirigenza) — la materia è la stessa a prescindere dal concorso, quindi condivide
+      // PDF, mini-test, punteggi e badge "padroneggiato" con quella voce.
+      'Organizzazione e funzionamento della pubblica amministrazione (manuale, non su Concorsando — materia dello scritto)',
+      'Ordinamento degli enti locali — TUEL D.Lgs. 267/2000 (manuale, non su Concorsando)',
+      'Pubblico impiego e rapporto di lavoro negli enti locali (manuale, non su Concorsando)',
+      'Codice dei contratti pubblici — D.Lgs. 36/2023 (manuale, non su Concorsando)',
+      'Elementi di diritto penale — reati contro la PA (manuale, non su Concorsando)',
+      'Anticorruzione, trasparenza e privacy — L.190/2012, D.Lgs.33/2013, GDPR (manuale, non su Concorsando)'
+    ]
   }
 };
+
+// Unica fonte di verità per "quali categorie esistono e in che ordine" — usata ovunque
+// nel codice (calendario, progressi, menu, barra focus, analisi) invece di riscrivere
+// l'elenco a mano in più punti. Aggiungere un concorso nuovo = aggiungerlo qui una volta sola.
+const CATEGORY_KEYS = Object.keys(CATS);
+
+function makeEmptyIndices(){
+  const obj = {};
+  CATEGORY_KEYS.forEach(k => obj[k] = 0);
+  return obj;
+}
 
 const QUESTION_BANK = {
   'Diritto del lavoro e della previdenza': [
@@ -909,6 +936,56 @@ const QUESTION_BANK = {
     {q:'Il criterio guida per scegliere la risposta è:', o:['Cosa faresti nella vita privata','Cosa ci si aspetta da un funzionario pubblico in quel ruolo','La risposta più rapida da attuare','La risposta che evita ogni responsabilità'], a:1},
     {q:'I quesiti situazionali fanno media, per la soglia 21/30, con:', o:['Nessuna, sono indipendenti','La Sezione A (comprensione testi)','La preselezione','Il colloquio orale'], a:1},
   ],
+  'Ordinamento degli enti locali — TUEL D.Lgs. 267/2000': [
+    {q:'Il TUEL è disciplinato dal:', o:['D.Lgs. 165/2001','D.Lgs. 267/2000','D.Lgs. 33/2013','D.P.R. 487/1994'], a:1},
+    {q:'Chi ha competenze tassative su Statuto, regolamenti e bilanci del Comune?', o:['La Giunta','Il Consiglio Comunale','Il Segretario comunale','Il Sindaco da solo'], a:1},
+    {q:'Il Sindaco, oltre a capo dell\'amministrazione, è anche:', o:['Presidente del Consiglio','Ufficiale di Governo per le funzioni statali decentrate','Dirigente apicale','Segretario comunale'], a:1},
+    {q:'L\'art. 107 TUEL attribuisce ai dirigenti/responsabili di servizio:', o:['L\'indirizzo politico','I compiti di gestione amministrativa, finanziaria e tecnica','Il potere di sciogliere il Consiglio','La nomina del Sindaco'], a:1},
+    {q:'La fonte di rango più alto di un Comune, dopo la legge, è:', o:['Il regolamento di contabilità','Lo Statuto comunale','La delibera di Giunta','L\'ordinanza sindacale'], a:1},
+    {q:'Il Segretario comunale svolge principalmente funzioni di:', o:['Indirizzo politico','Collaborazione e assistenza giuridico-amministrativa agli organi','Gestione dei contratti pubblici','Controllo di gestione esclusivo'], a:1},
+    {q:'Le Unioni di Comuni servono principalmente a:', o:['Sostituire il Consiglio Comunale','Gestire insieme funzioni e servizi tra più enti','Eleggere il Sindaco metropolitano','Approvare il bilancio statale'], a:1},
+    {q:'Il D.L. 174/2012 ha rafforzato:', o:['I poteri del Segretario comunale','I controlli interni degli enti locali','Le competenze del Consiglio','Il sistema di classificazione del personale'], a:1},
+  ],
+  'Pubblico impiego e rapporto di lavoro negli enti locali': [
+    {q:'Il personale degli enti locali rientra nel CCNL:', o:['Funzioni Centrali','Funzioni Locali','Sanità','Scuola'], a:1},
+    {q:'Il nuovo sistema di classificazione prevede le Aree di:', o:['Operatori, Assistenti, Istruttori, Funzionari e EQ','A, B, C, D come nel vecchio ordinamento','Dirigenti e non dirigenti soltanto','Politici e tecnici'], a:0},
+    {q:'L\'Elevata Qualificazione (EQ) si colloca:', o:['Nell\'Area degli Operatori','Dentro l\'Area dei Funzionari, per incarichi di elevata responsabilità','Fuori da qualunque area','Solo nei Comuni capoluogo'], a:1},
+    {q:'Il Segretario comunale è una figura:', o:['Facoltativa, solo nei grandi Comuni','Obbligatoria in ogni Comune','Eletta dai cittadini','Nominata dal Prefetto'], a:1},
+    {q:'Il Direttore Generale, a differenza del Segretario, è:', o:['Sempre obbligatorio','Una figura facoltativa','Eletto dal Consiglio','Un organo politico'], a:1},
+    {q:'La Posizione Organizzativa (PO) serve tipicamente a:', o:['Sostituire il Sindaco','Esercitare le funzioni dell\'art. 107 TUEL nei Comuni senza dirigenza','Approvare lo Statuto','Nominare il Segretario'], a:1},
+    {q:'L\'ARAN si occupa di:', o:['Bandire i concorsi pubblici','Negoziare i CCNL per conto delle amministrazioni','Vigilare sull\'anticorruzione','Gestire le pensioni'], a:1},
+    {q:'La contrattazione integrativa d\'ente regola tipicamente:', o:['I principi generali del pubblico impiego','Produttività e progressioni economiche orizzontali a livello locale','La Costituzione','Il codice penale'], a:1},
+  ],
+  'Codice dei contratti pubblici — D.Lgs. 36/2023': [
+    {q:'Il principio del risultato (art. 1) orienta le stazioni appaltanti verso:', o:['Il massimo controllo formale','Tempestività e miglior rapporto qualità-prezzo','Il prezzo più basso sempre','L\'esclusione del maggior numero di offerenti'], a:1},
+    {q:'Il principio della fiducia (art. 2) valorizza soprattutto:', o:['Il controllo esterno','L\'autonomia decisionale dei funzionari','La riduzione dei contratti pubblici','L\'obbligo di gara europea sempre'], a:1},
+    {q:'Prima di ogni affidamento la stazione appaltante deve adottare:', o:['Il bando definitivo','La decisione di contrarre','Il collaudo','La graduatoria finale'], a:1},
+    {q:'Per i lavori, l\'affidamento diretto è ammesso sotto:', o:['50.000 €','150.000 €','500.000 €','1 milione di €'], a:1},
+    {q:'Per lavori tra 150.000 € e 1 milione di €, la procedura negoziata richiede almeno:', o:['3 operatori','5 operatori','10 operatori','20 operatori'], a:1},
+    {q:'Il RUP è una figura:', o:['Facoltativa','Obbligatoria e non rifiutabile','Eletta dagli operatori economici','Solo per i contratti sopra soglia UE'], a:1},
+    {q:'I due criteri principali di aggiudicazione sono:', o:['Sorteggio e cottimo','Prezzo più basso e offerta economicamente più vantaggiosa','Solo il prezzo più basso','Solo la qualità tecnica'], a:1},
+    {q:'Il principio di tassatività delle cause di esclusione (art. 10) significa che:', o:['Si può escludere per qualunque motivo','Si esclude solo per le cause espressamente previste dal Codice','L\'esclusione è sempre vietata','Serve sempre un\'autorizzazione ministeriale'], a:1},
+  ],
+  'Elementi di diritto penale — reati contro la PA': [
+    {q:'L\'abuso d\'ufficio (art. 323 c.p.) oggi è:', o:['In vigore con pena aumentata','Stato abrogato dalla L. 114/2024','Diventato illecito amministrativo','Invariato dal 1990'], a:1},
+    {q:'Il peculato (art. 314 c.p.) punisce chi:', o:['Costringe un privato a pagare','Si appropria di denaro/beni di cui ha la disponibilità per l\'ufficio','Riceve un regalo di modico valore','Rifiuta un atto dovuto'], a:1},
+    {q:'Nella concussione (art. 317 c.p.), il pubblico ufficiale:', o:['Si accorda con il privato','Costringe il privato, che è vittima','Riceve un\'utilità senza chiederla','Agisce sempre in gruppo'], a:1},
+    {q:'Nella corruzione, a differenza della concussione:', o:['Solo il pubblico ufficiale è punito','C\'è un accordo bilaterale e sono puniti entrambi','Il privato è sempre vittima','Non serve alcun vantaggio economico'], a:1},
+    {q:'La corruzione "propria" (art. 319) riguarda:', o:['Un atto conforme ai doveri d\'ufficio','Un atto contrario ai doveri d\'ufficio','Un atto non ancora deciso','Solo somme superiori a 10.000 €'], a:1},
+    {q:'Nell\'induzione indebita (art. 319-quater), il pubblico ufficiale:', o:['Costringe come nella concussione','Induce (non costringe); il privato risponde comunque','Non ha alcun ruolo attivo','Agisce sempre per errore'], a:1},
+    {q:'Il traffico di influenze illecite (art. 346-bis) dopo la riforma 2024:', o:['È stato abrogato come l\'abuso d\'ufficio','Resta in vigore con ambito più ristretto','È stato esteso a nuovi casi','Riguarda solo i privati'], a:1},
+    {q:'Conoscere questi reati è utile per un Funzionario perché:', o:['Serve solo ai magistrati','Aiuta a riconoscere situazioni a rischio nella gestione di procedimenti e contratti','Non ha alcuna applicazione pratica','Riguarda solo il settore privato'], a:1},
+  ],
+  'Anticorruzione, trasparenza e privacy — L.190/2012, D.Lgs.33/2013, GDPR': [
+    {q:'Il PNA (Piano Nazionale Anticorruzione) è adottato da:', o:['Ogni singolo Comune','L\'ANAC','Il Parlamento','Il Ministero dell\'Interno'], a:1},
+    {q:'Il RPCT all\'interno di un ente si occupa di:', o:['Contabilità','Prevenzione della corruzione e trasparenza','Gestione del personale','Contratti pubblici'], a:1},
+    {q:'Il D.Lgs. 33/2013 disciplina principalmente:', o:['Il codice penale','Gli obblighi di trasparenza e pubblicazione della PA','I contratti pubblici','Il pubblico impiego'], a:1},
+    {q:'L\'accesso civico (art. 5, D.Lgs. 33/2013) permette a chiunque di:', o:['Accedere solo ai propri dati','Richiedere dati che l\'amministrazione doveva pubblicare e non ha pubblicato','Modificare gli atti pubblici','Candidarsi a un concorso senza requisiti'], a:1},
+    {q:'Il whistleblowing (art. 54-bis D.Lgs. 165/2001) tutela:', o:['Chi segnala illeciti da eventuali ritorsioni','Solo i dirigenti apicali','I fornitori dell\'ente','I familiari dei dipendenti'], a:0},
+    {q:'Il GDPR (Regolamento UE 2016/679) riguarda:', o:['I contratti pubblici','La protezione dei dati personali','L\'anticorruzione','Il codice penale'], a:1},
+    {q:'La rotazione del personale nelle aree a rischio serve a:', o:['Aumentare gli stipendi','Prevenire consolidamento di posizioni a rischio corruttivo','Ridurre il personale','Velocizzare i concorsi'], a:1},
+    {q:'Il Codice di comportamento dei dipendenti pubblici è previsto da:', o:['Art. 54 D.Lgs. 165/2001','Il solo Statuto comunale','Il Codice penale','Il GDPR'], a:0},
+  ],
 };
 
 const RESOURCE_LINKS = {
@@ -917,7 +994,10 @@ const RESOURCE_LINKS = {
   'Pianificazione e controllo di gestione': 'https://drive.google.com/file/d/1JXmFpEIxm_3cj7soD378U8e9lC7eRK2C/view?usp=drive_link',
   'Organizzazione e funzionamento della pubblica amministrazione': 'https://drive.google.com/file/d/1pD7i_7UMfIx8Tizm0-zQZ80aTOf-38Nc/view?usp=drive_link',
   'Comprensione testi tecnico-giuridici — metodo per lo scritto': 'https://drive.google.com/file/d/15f2MjGHy6p6wTNoR1PqwQsx5J3qgOtFH/view?usp=drive_link',
-  'Quesiti situazionali PECS — metodo': 'https://drive.google.com/file/d/1H_C65zUyzGeIJqcaNlinaxlH4aDDkz0-/view?usp=drive_link'
+  'Quesiti situazionali PECS — metodo': 'https://drive.google.com/file/d/1H_C65zUyzGeIJqcaNlinaxlH4aDDkz0-/view?usp=drive_link',
+  // Riciclato: la sezione 9 dello stesso PDF "Organizzazione e funzionamento della PA" copre già
+  // anticorruzione, trasparenza e PNA/ANAC — niente da riscrivere per questa nuova voce.
+  'Anticorruzione, trasparenza e privacy — L.190/2012, D.Lgs.33/2013, GDPR': 'https://drive.google.com/file/d/1pD7i_7UMfIx8Tizm0-zQZ80aTOf-38Nc/view?usp=drive_link'
 };
 
 const DAY_NAMES = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
@@ -964,11 +1044,11 @@ const SUPABASE_URL = 'https://qvtrbloiykgimhinvpvj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2dHJibG9peWtnaW1oaW52cHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDIyMDgsImV4cCI6MjA5OTU3ODIwOH0.ghPTJ8pOnrteQbvksuDwdn-LKj9SBeppSYlj3uOmwgI';
 const USER_ID = 'antonio';
 
-let state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
+let state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
 
 function getAllTopicsList(){
   const list = [];
-  ['comune','pecspre','pecsscritto','dtd2','informatico'].forEach(cat=>{
+  CATEGORY_KEYS.forEach(cat=>{
     const catData = CATS[cat];
     catData.topics.forEach(topic=>{
       const { topicClean } = computeModeInfo(topic, catData);
@@ -1278,7 +1358,7 @@ function getTopicStats(topicClean){
 function buildTopicAnalysis(){
   const scopeCats = state.focusMode
     ? [state.focusMode]
-    : ['comune','pecspre','pecsscritto','dtd2','informatico'];
+    : CATEGORY_KEYS;
   const tested = [];
   const untested = [];
   scopeCats.forEach(cat=>{
@@ -1490,7 +1570,7 @@ function render(){
     // In modalità focus, la bonus non propone altri concorsi: fa proseguire ANCORA sul concorso in focus
     const otherCats = state.focusMode
       ? [cat]
-      : ['comune','pecspre','pecsscritto','dtd2','informatico'].filter(c => c !== cat);
+      : CATEGORY_KEYS.filter(c => c !== cat);
     const bonusCardsHtml = otherCats.map(c => buildSessionCard(c, true)).join('');
     const bonusIntroText = state.focusMode
       ? `Sei in modalità focus su ${CATS[cat].label} — hai già fatto quella di oggi, se vuoi continuare ad affondare eccone un'altra sullo stesso concorso. Facoltativo, non tocca lo streak.`
@@ -1505,9 +1585,10 @@ function render(){
 
   // --- Sezione custom: sempre disponibile, per registrare studio fatto per conto proprio (es. Mininterno) ---
   const allTopics = getAllTopicsList();
-  const topicsByCat = {comune:[], pecspre:[], pecsscritto:[], dtd2:[], informatico:[]};
+  const topicsByCat = {};
+  CATEGORY_KEYS.forEach(c => topicsByCat[c] = []);
   allTopics.forEach(t => topicsByCat[t.cat].push(t));
-  const customOptionsHtml = ['comune','pecspre','pecsscritto','dtd2','informatico'].map(c=>{
+  const customOptionsHtml = CATEGORY_KEYS.map(c=>{
     const opts = topicsByCat[c].map(t => `<option value="${c}|||${t.topicClean.replace(/"/g,'&quot;')}">${t.topicClean}</option>`).join('');
     return `<optgroup label="${CATS[c].label}">${opts}</optgroup>`;
   }).join('');
@@ -1557,7 +1638,7 @@ function render(){
   }
 
   let progressHtml = '';
-  ['comune','pecspre','pecsscritto','dtd2','informatico'].forEach(c=>{
+  CATEGORY_KEYS.forEach(c=>{
     const cd = CATS[c];
     const done = state.indices[c] || 0;
     const customCount = categoryCustomCount(c);
@@ -1688,7 +1769,8 @@ function render(){
   let weekDaysDone = 0;
   let weekScoreSum = 0, weekScoreCount = 0;
   let weekBonusTotal = 0;
-  const weekBonusByCat = {comune:0, pecspre:0, pecsscritto:0, dtd2:0, informatico:0};
+  const weekBonusByCat = {};
+  CATEGORY_KEYS.forEach(c => weekBonusByCat[c] = 0);
   for(let i=0;i<7;i++){
     const d = new Date(weekMonday);
     d.setDate(weekMonday.getDate()+i);
@@ -1800,7 +1882,7 @@ function render(){
     focusBarHtml = `<div class="focus-bar">
       <span class="focus-label">🔄 Rotazione automatica attiva</span>
       <span class="focus-btns">
-        ${['comune','pecspre','pecsscritto','dtd2','informatico'].map(c=>`<button class="focus-choice-btn" data-focus="${c}" style="border-color:${CATS[c].color}; color:${CATS[c].color}">${CATS[c].tag}</button>`).join('')}
+        ${CATEGORY_KEYS.map(c=>`<button class="focus-choice-btn" data-focus="${c}" style="border-color:${CATS[c].color}; color:${CATS[c].color}">${CATS[c].tag}</button>`).join('')}
       </span>
     </div>`;
   }
@@ -2093,7 +2175,7 @@ async function saveCustomSession(){
 
 async function resetProgress(){
   if(!confirm('Reimpostare tutti i progressi salvati? Questa azione non si può annullare.')) return;
-  state = { indices:{comune:0,pecspre:0,pecsscritto:0,dtd2:0,informatico:0}, log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
+  state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
   await saveState();
   render();
 }
