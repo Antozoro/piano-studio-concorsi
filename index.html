@@ -885,6 +885,43 @@
   .mini-progress-fill{ height:100%; border-radius:999px; }
   .accordion-summary-pct{ font-size:11px; font-weight:700; color:var(--text-soft); flex-shrink:0; min-width:32px; text-align:right; }
   .accordion-body{ padding: 4px 16px 14px; border-top:1px solid var(--border); }
+  .cat-accordion.cat-inactive{ opacity: 0.6; }
+  .cat-accordion.cat-inactive .accordion-summary-pct,
+  .cat-accordion.cat-inactive .accordion-summary-meta{ color: var(--text-faint); }
+  .accordion-toggle-row{
+    padding: 10px 0 12px;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 6px;
+  }
+  .switch-label{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .switch-track{
+    position: relative;
+    width: 36px;
+    height: 20px;
+    background: var(--border-strong);
+    border-radius: 999px;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+  }
+  .switch-track::after{
+    content:'';
+    position:absolute;
+    top: 2px; left: 2px;
+    width: 16px; height:16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .cat-toggle-input{ display:none; }
+  .cat-toggle-input:checked + .switch-track{ background: var(--success); }
+  .cat-toggle-input:checked + .switch-track::after{ transform: translateX(16px); }
+  .switch-text{ font-size: 11.5px; color: var(--text-soft); }
   .accordion-topic-row{
     display:flex;
     align-items:center;
@@ -1226,12 +1263,53 @@ function dayCategory(d){
   if(day===6) return (isoWeek(d) % 2 === 0) ? 'pecspre' : 'dtd2';
   return 'informatico'; // Sunday
 }
-// Se è attiva la modalità focus, sovrascrive la rotazione automatica per QUALSIASI giorno
+
+function getActiveCategories(){
+  const inactive = state.inactiveCategories || [];
+  return CATEGORY_KEYS.filter(c => !inactive.includes(c));
+}
+
+// Se è attiva la modalità focus, sovrascrive la rotazione automatica per QUALSIASI giorno.
+// Altrimenti: se la categoria assegnata al giorno è stata disattivata, i suoi giorni vengono
+// redistribuiti in modo stabile (stessa data = sempre la stessa categoria) tra le categorie
+// con giorno fisso rimaste attive — mai un giorno "vuoto" senza sessione proposta.
 function effectiveDayCategory(d){
-  return state.focusMode || dayCategory(d);
+  if(state.focusMode) return state.focusMode;
+  const base = dayCategory(d);
+  const active = getActiveCategories();
+  if(active.includes(base)) return base;
+
+  const fixedDayCats = ['comune','pecspre','dtd2','informatico'].filter(c => active.includes(c));
+  if(fixedDayCats.length === 0){
+    return active[0] || 'comune'; // nessuna categoria a giorno fisso attiva: usa la prima extra attiva
+  }
+  const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  return fixedDayCats[dayOfYear % fixedDayCats.length];
 }
 async function setFocusMode(catOrNull){
   state.focusMode = catOrNull;
+  await saveState();
+  render();
+}
+
+async function toggleCategoryActive(cat){
+  if(!state.inactiveCategories) state.inactiveCategories = [];
+  const isCurrentlyActive = !state.inactiveCategories.includes(cat);
+
+  if(isCurrentlyActive){
+    // Non permettere di spegnere l'ultima categoria attiva rimasta: il tracker deve
+    // sempre avere almeno qualcosa da proporre.
+    const activeCount = CATEGORY_KEYS.length - state.inactiveCategories.length;
+    if(activeCount <= 1){
+      alert('Non puoi disattivare l\'ultima categoria attiva rimasta — deve restarne sempre almeno una.');
+      return;
+    }
+    state.inactiveCategories.push(cat);
+    // Se stavi puntando il Focus proprio su questa categoria, torna alla rotazione automatica
+    if(state.focusMode === cat) state.focusMode = null;
+  } else {
+    state.inactiveCategories = state.inactiveCategories.filter(c => c !== cat);
+  }
   await saveState();
   render();
 }
@@ -1247,7 +1325,7 @@ const SUPABASE_URL = 'https://qvtrbloiykgimhinvpvj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2dHJibG9peWtnaW1oaW52cHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDIyMDgsImV4cCI6MjA5OTU3ODIwOH0.ghPTJ8pOnrteQbvksuDwdn-LKj9SBeppSYlj3uOmwgI';
 const USER_ID = 'antonio';
 
-let state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
+let state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
 
 function getAllTopicsList(){
   const list = [];
@@ -1629,7 +1707,7 @@ function getTopicStats(topicClean){
 // divise tra "già testate" (ordinate dalla più debole) e "mai testate".
 function buildTopicAnalysis(forceAll){
   const scopeCats = (forceAll || !state.focusMode)
-    ? CATEGORY_KEYS
+    ? getActiveCategories()
     : [state.focusMode];
   const tested = [];
   const untested = [];
@@ -1651,6 +1729,7 @@ function buildTopicAnalysis(forceAll){
 
 function buildCategoryAccordion(cat, openByDefault){
   const cd = CATS[cat];
+  const isActive = !(state.inactiveCategories || []).includes(cat);
   const done = state.indices[cat] || 0;
   const customCount = categoryCustomCount(cat);
   const totalCount = done + customCount;
@@ -1671,14 +1750,23 @@ function buildCategoryAccordion(cat, openByDefault){
   }).join('');
 
   return `
-    <details class="cat-accordion" ${openByDefault ? 'open' : ''}>
+    <details class="cat-accordion ${isActive ? '' : 'cat-inactive'}" ${openByDefault ? 'open' : ''}>
       <summary>
-        <span class="accordion-summary-name" style="color:${cd.color}">${cd.label}</span>
+        <span class="accordion-summary-name" style="color:${isActive ? cd.color : 'var(--text-faint)'}">${cd.label}</span>
         <span class="accordion-summary-meta">${cd.tag}</span>
-        <div class="mini-progress-track"><div class="mini-progress-fill" style="width:${pct}%; background:${cd.color}"></div></div>
+        <div class="mini-progress-track"><div class="mini-progress-fill" style="width:${pct}%; background:${isActive ? cd.color : 'var(--text-faint)'}"></div></div>
         <span class="accordion-summary-pct">${pct}%</span>
       </summary>
-      <div class="accordion-body">${topicsListHtml}</div>
+      <div class="accordion-body">
+        <div class="accordion-toggle-row">
+          <label class="switch-label">
+            <input type="checkbox" class="cat-toggle-input" data-cat="${cat}" ${isActive ? 'checked' : ''}>
+            <span class="switch-track"></span>
+            <span class="switch-text">${isActive ? 'Attiva — compare in rotazione, focus, bonus e statistiche' : 'Disattivata — nascosta ovunque, ma i tuoi dati restano intatti'}</span>
+          </label>
+        </div>
+        ${topicsListHtml}
+      </div>
     </details>`;
 }
 
@@ -1820,6 +1908,7 @@ function migrateOldPecsCategory(){
   CATEGORY_KEYS.forEach(k=>{
     if(state.indices[k] === undefined) state.indices[k] = 0;
   });
+  if(!state.inactiveCategories) state.inactiveCategories = [];
 
   // Migro anche lo storico: sessioni già completate con la vecchia categoria unica "pecs"
   // devono puntare a "pecspre", altrimenti il tracker va in errore cercando una categoria
@@ -1883,7 +1972,7 @@ function render(){
     // In modalità focus, la bonus non propone altri concorsi: fa proseguire ANCORA sul concorso in focus
     const otherCats = state.focusMode
       ? [cat]
-      : CATEGORY_KEYS.filter(c => c !== cat);
+      : getActiveCategories().filter(c => c !== cat);
     const bonusCardsHtml = otherCats.map(c => buildSessionCard(c, true)).join('');
     const bonusIntroText = state.focusMode
       ? `Sei in modalità focus su ${CATS[cat].label} — hai già fatto quella di oggi, se vuoi continuare ad affondare eccone un'altra sullo stesso concorso. Facoltativo, non tocca lo streak.`
@@ -1898,10 +1987,11 @@ function render(){
 
   // --- Sezione custom: sempre disponibile, per registrare studio fatto per conto proprio (es. Mininterno) ---
   const allTopics = getAllTopicsList();
+  const activeCatsForCustom = getActiveCategories();
   const topicsByCat = {};
-  CATEGORY_KEYS.forEach(c => topicsByCat[c] = []);
-  allTopics.forEach(t => topicsByCat[t.cat].push(t));
-  const customOptionsHtml = CATEGORY_KEYS.map(c=>{
+  activeCatsForCustom.forEach(c => topicsByCat[c] = []);
+  allTopics.forEach(t => { if(topicsByCat[t.cat]) topicsByCat[t.cat].push(t); });
+  const customOptionsHtml = activeCatsForCustom.map(c=>{
     const opts = topicsByCat[c].map(t => `<option value="${c}|||${t.topicClean.replace(/"/g,'&quot;')}">${t.topicClean}</option>`).join('');
     return `<optgroup label="${CATS[c].label}">${opts}</optgroup>`;
   }).join('');
@@ -1951,7 +2041,7 @@ function render(){
   }
 
   let progressHtml = '';
-  CATEGORY_KEYS.forEach(c=>{
+  getActiveCategories().forEach(c=>{
     const cd = CATS[c];
     const done = state.indices[c] || 0;
     const customCount = categoryCustomCount(c);
@@ -2047,6 +2137,16 @@ function render(){
   const isStreakMilestone = STREAK_MILESTONES.includes(streak);
   const nextMilestone = STREAK_MILESTONES.find(m => m > streak);
 
+  // Calcolati SEMPRE, indipendentemente dallo streak generale: uno scudo può restare in
+  // inventario anche a streak zero, e lo streak di focus conta principale+bonus (mentre
+  // quello generale conta solo la principale) — possono benissimo divergere.
+  const shieldsCount = state.streakShields || 0;
+  const shieldsHtml = shieldsCount > 0 ? `<div class="streak-shields">🛡️ ${shieldsCount} scud${shieldsCount===1?'o':'i'} disponibil${shieldsCount===1?'e':'i'}</div>` : '';
+  const focusStreak = calculateFocusStreak();
+  const focusStreakHtml = state.focusMode
+    ? `<div class="focus-streak">🎯 ${focusStreak} giorn${focusStreak===1?'o':'i'} di fila su questo focus</div>`
+    : '';
+
   let streakHeroHtml;
   if (streak <= 0){
     streakHeroHtml = `
@@ -2055,6 +2155,8 @@ function render(){
       <div class="streak-main">
         <div class="streak-title">Inizia oggi la serie</div>
         <div class="streak-sub">Ogni giorno conta — bastano 30-60 minuti per partire.</div>
+        ${shieldsHtml}
+        ${focusStreakHtml}
       </div>
     </div>`;
   } else {
@@ -2063,12 +2165,6 @@ function render(){
       : (nextMilestone
           ? `${nextMilestone - streak} giorn${(nextMilestone-streak)===1?'o':'i'} al prossimo traguardo (${nextMilestone})`
           : 'Traguardo record personale — nessun limite superiore in vista.');
-    const shieldsCount = state.streakShields || 0;
-    const shieldsHtml = shieldsCount > 0 ? `<div class="streak-shields">🛡️ ${shieldsCount} scud${shieldsCount===1?'o':'i'} disponibil${shieldsCount===1?'e':'i'}</div>` : '';
-    const focusStreak = calculateFocusStreak();
-    const focusStreakHtml = state.focusMode
-      ? `<div class="focus-streak">🎯 ${focusStreak} giorn${focusStreak===1?'o':'i'} di fila su questo focus</div>`
-      : '';
     streakHeroHtml = `
     <div class="streak-hero tier-${streakTier} ${isStreakMilestone?'milestone':''}">
       <div class="streak-flame">🔥</div>
@@ -2202,7 +2298,7 @@ function render(){
   const focusSelectHtml = `
     <select class="focus-pill-select" id="focusPillSelect">
       <option value="">🔄 Rotazione automatica</option>
-      ${CATEGORY_KEYS.map(c=>`<option value="${c}" ${state.focusMode===c?'selected':''}>${CATS[c].label}</option>`).join('')}
+      ${getActiveCategories().map(c=>`<option value="${c}" ${state.focusMode===c?'selected':''}>${CATS[c].label}</option>`).join('')}
     </select>`;
   const shieldsCountHeader = state.streakShields || 0;
   const streakPillHtml = `
@@ -2234,7 +2330,7 @@ function render(){
 
   // --- KPI per il tab "Statistiche": sempre su TUTTE le categorie, indipendenti dal focus ---
   const globalAnalysis = buildTopicAnalysis(true);
-  const kpiTotalSessions = CATEGORY_KEYS.reduce((sum,c)=> sum + (state.indices[c]||0) + categoryCustomCount(c), 0);
+  const kpiTotalSessions = getActiveCategories().reduce((sum,c)=> sum + (state.indices[c]||0) + categoryCustomCount(c), 0);
   const kpiAvgScore = globalAnalysis.tested.length ? Math.round(globalAnalysis.tested.reduce((s,t)=>s+t.avgPct,0)/globalAnalysis.tested.length) : null;
   const kpiCriticalCount = globalAnalysis.tested.filter(t=>t.avgPct<80).length;
   const kpiCardsHtml = `
@@ -2305,11 +2401,7 @@ function render(){
 
     <div class="tab-panel" data-tab-panel="impostazioni" style="${activeTab==='impostazioni'?'':'display:none'}">
       <div class="legend">
-        <span><span class="dot" style="background:${CATS.comune.color}"></span>Comune</span>
-        <span><span class="dot" style="background:${CATS.pecspre.color}"></span>PECS Presel.</span>
-        <span><span class="dot" style="background:${CATS.pecsscritto.color}"></span>PECS Scritto</span>
-        <span><span class="dot" style="background:${CATS.dtd2.color}"></span>DTD2</span>
-        <span><span class="dot" style="background:${CATS.informatico.color}"></span>Informatico (backup)</span>
+        ${getActiveCategories().map(c=>`<span><span class="dot" style="background:${CATS[c].color}"></span>${CATS[c].label}</span>`).join('')}
       </div>
       <div class="footer">
         Sabato si alterna tra PECS Preselezione e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
@@ -2391,6 +2483,13 @@ function render(){
     render();
   });
 
+  document.querySelectorAll('.cat-toggle-input').forEach(inp=>{
+    inp.addEventListener('click', (e)=>{
+      e.preventDefault(); // evito che la checkbox cambi stato da sola: lo fa toggleCategoryActive dopo il render
+      toggleCategoryActive(inp.dataset.cat);
+    });
+  });
+
   document.querySelectorAll('.month-cell.clickable').forEach(cellEl=>{
     cellEl.addEventListener('click', ()=>{
       const d = cellEl.dataset.date;
@@ -2451,6 +2550,7 @@ async function importBackup(ev){
     if(state.focusMode === undefined) state.focusMode = null;
     if(state.streakShields === undefined) state.streakShields = 0;
     if(!state.shieldedDates) state.shieldedDates = [];
+    if(!state.inactiveCategories) state.inactiveCategories = [];
     await saveState();
     render();
     alert('Backup importato correttamente.');
@@ -2556,7 +2656,7 @@ async function saveCustomSession(){
 
 async function resetProgress(){
   if(!confirm('Reimpostare tutti i progressi salvati? Questa azione non si può annullare.')) return;
-  state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[] };
+  state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
   await saveState();
   render();
 }
