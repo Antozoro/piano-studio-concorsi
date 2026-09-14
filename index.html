@@ -141,6 +141,12 @@
     font-weight: 700;
     margin-top: 4px;
   }
+  .focus-streak{
+    font-size: 11px;
+    color: var(--focus-accent, var(--comune));
+    font-weight: 700;
+    margin-top: 4px;
+  }
   .streak-celebrate{
     font-size: 24px;
     flex-shrink: 0;
@@ -1254,6 +1260,37 @@ function calculateStreak(){
   return streak;
 }
 
+// Un giorno "conta" per il focus X se quel giorno è stato toccato come principale O come
+// bonus su X — nessun dato nuovo da salvare, deriva da quello che già registri ogni giorno.
+function isFocusTouchedOnDay(dKey, cat){
+  if(state.log[dKey] && state.log[dKey].cat === cat) return true;
+  if(state.bonusLog[dKey] && state.bonusLog[dKey][cat]) return true;
+  return false;
+}
+
+// Giorni di fila sullo STESSO focus attuale — si azzera se salti un giorno, ma anche se cambi
+// focus (tornare a un vecchio focus riparte da zero, non riprende il conteggio precedente):
+// camminando all'indietro basta che un giorno non abbia quella specifica categoria toccata
+// (nemmeno come bonus) per fermare il conteggio, anche se quel giorno avevi studiato altro.
+function calculateFocusStreak(){
+  if(!state.focusMode) return 0;
+  const cat = state.focusMode;
+  let streak = 0;
+  let d = new Date();
+  const todayKey = dateKey(d);
+  if(!isFocusTouchedOnDay(todayKey, cat)){
+    d.setDate(d.getDate()-1);
+  }
+  while(true){
+    const k = dateKey(d);
+    if(isFocusTouchedOnDay(k, cat)){
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else break;
+  }
+  return streak;
+}
+
 const STREAK_MILESTONES = [3, 7, 14, 21, 30, 50, 75, 100, 150, 200, 300, 365];
 
 function getStreakTier(streak){
@@ -1780,6 +1817,10 @@ function render(){
           : 'Traguardo record personale — nessun limite superiore in vista.');
     const shieldsCount = state.streakShields || 0;
     const shieldsHtml = shieldsCount > 0 ? `<div class="streak-shields">🛡️ ${shieldsCount} scud${shieldsCount===1?'o':'i'} disponibil${shieldsCount===1?'e':'i'}</div>` : '';
+    const focusStreak = calculateFocusStreak();
+    const focusStreakHtml = state.focusMode
+      ? `<div class="focus-streak">🎯 ${focusStreak} giorn${focusStreak===1?'o':'i'} di fila su questo focus</div>`
+      : '';
     streakHeroHtml = `
     <div class="streak-hero tier-${streakTier} ${isStreakMilestone?'milestone':''}">
       <div class="streak-flame">🔥</div>
@@ -1787,6 +1828,7 @@ function render(){
         <div class="streak-title">${streak} giorn${streak===1?'o':'i'} di fila</div>
         <div class="streak-sub">${subText}</div>
         ${shieldsHtml}
+        ${focusStreakHtml}
       </div>
       ${isStreakMilestone ? `<div class="streak-celebrate">🎉</div>` : ''}
     </div>`;
