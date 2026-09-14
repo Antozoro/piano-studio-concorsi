@@ -741,7 +741,186 @@
   .footer a{ color: var(--primary); font-weight: 600; text-decoration: none; }
   .footer a:hover{ text-decoration: underline; }
   .reminder-on{ font-size: 11px; color: var(--success); font-weight: 700; }
-  .loading{ padding: 40px 20px; text-align:center; color: var(--text-soft); font-size:13px; }
+  /* ---------- SKELETON LOADER ---------- */
+  .skeleton-wrap{ display:flex; flex-direction:column; gap:14px; }
+  .skeleton-block{
+    background: #e2e8f0;
+    border-radius: var(--radius);
+    animation: skeleton-pulse 1.5s infinite;
+  }
+  .skeleton-header{ height:64px; }
+  .skeleton-tabs{ height:40px; }
+  .skeleton-hero{ height:220px; }
+  @keyframes skeleton-pulse{
+    0%{ opacity:1; } 50%{ opacity:0.55; } 100%{ opacity:1; }
+  }
+
+  /* ---------- HEADER COMPATTO ---------- */
+  .header-compact{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 10px 16px;
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .header-compact .app-logo-img{ height:32px; flex-shrink:0; }
+  .focus-pill-select{
+    flex: 1;
+    min-width: 140px;
+    max-width: 260px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .streak-pill{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-left: auto;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .streak-pill .flame-sm{ font-size:16px; }
+  .shield-pill{
+    font-size: 11px;
+    color: var(--primary);
+    background: var(--primary-light);
+    border-radius: 999px;
+    padding: 2px 8px;
+  }
+
+  /* ---------- TAB BAR ---------- */
+  .tab-bar{
+    display:flex;
+    gap: 4px;
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 6px;
+  }
+  .tab-btn{
+    flex: 1;
+    white-space: nowrap;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+  .tab-btn.active{ background: var(--primary); color: white; }
+  .tab-btn:hover:not(.active){ background: var(--bg); }
+  .tab-panel{ display:flex; flex-direction:column; gap:14px; }
+
+  /* ---------- STEP NAV (materie con più risorse) ---------- */
+  .step-nav{
+    display:flex;
+    gap: 4px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .step-nav-btn{
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+  .step-nav-btn.active{ background: var(--primary); color:white; border-color:var(--primary); }
+
+  /* ---------- ACCORDION (Programma & Concorsi) ---------- */
+  .cat-accordion{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .cat-accordion summary{
+    list-style: none;
+    cursor: pointer;
+    padding: 12px 16px;
+    display:flex;
+    align-items:center;
+    gap: 10px;
+  }
+  .cat-accordion summary::-webkit-details-marker{ display:none; }
+  .cat-accordion summary::before{
+    content: '▸';
+    color: var(--text-faint);
+    font-size: 11px;
+    flex-shrink:0;
+    transition: transform 0.15s ease;
+  }
+  .cat-accordion[open] summary::before{ transform: rotate(90deg); }
+  .accordion-summary-name{ font-size:13px; font-weight:800; flex-shrink:0; }
+  .accordion-summary-meta{ font-size:10.5px; color:var(--text-faint); flex-shrink:0; }
+  .mini-progress-track{
+    flex:1;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 999px;
+    overflow:hidden;
+    min-width: 40px;
+  }
+  .mini-progress-fill{ height:100%; border-radius:999px; }
+  .accordion-summary-pct{ font-size:11px; font-weight:700; color:var(--text-soft); flex-shrink:0; min-width:32px; text-align:right; }
+  .accordion-body{ padding: 4px 16px 14px; border-top:1px solid var(--border); }
+  .accordion-topic-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 11.5px;
+  }
+  .accordion-topic-row:last-child{ border-bottom:none; }
+  .accordion-topic-name{ flex:1; }
+  .chip{
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .chip-good{ background: var(--success-bg); color: var(--success); }
+  .chip-weak{ background: var(--warning-bg); color: var(--warning); }
+
+  /* ---------- KPI CARDS (Statistiche) ---------- */
+  .kpi-row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .kpi-card{
+    flex: 1;
+    min-width: 100px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 14px;
+    text-align:center;
+  }
+  .kpi-card.kpi-warning{ border-color: var(--warning-border); background: var(--warning-bg); }
+  .kpi-value{ font-size:22px; font-weight:800; color:var(--text); }
+  .kpi-label{ font-size:10.5px; color:var(--text-soft); margin-top:2px; }
 
   @media (max-width: 480px){
     .header{flex-direction:column; align-items:flex-start;}
@@ -762,7 +941,11 @@
 </head>
 <body>
   <div class="sheet" id="sheet">
-    <div class="loading" id="loading">Caricamento pratiche…</div>
+    <div class="skeleton-wrap" id="loading">
+      <div class="skeleton-block skeleton-header"></div>
+      <div class="skeleton-block skeleton-tabs"></div>
+      <div class="skeleton-block skeleton-hero"></div>
+    </div>
   </div>
 
 <script>
@@ -1177,14 +1360,31 @@ function buildSessionCard(cat, isBonus){
         <button class="reset-link" id="quizCancelBtn">chiudi senza salvare</button>
       </div>`;
   } else {
+    const showScoreEntry = modeClass === 'mode-quiz' || HYBRID_SCORE_TOPICS.has(topicClean);
+    const availableBlocks = [];
+    if (resourceUrl) availableBlocks.push('pdf');
+    if (hasQuizBank) availableBlocks.push('minitest');
+    if (showScoreEntry) availableBlocks.push('score');
+    const useStepper = availableBlocks.length >= 2;
+    const currentStep = useStepper ? getMateriaStep(topicClean, availableBlocks) : (availableBlocks[0] || null);
+    const showBlock = (b) => !useStepper ? availableBlocks.includes(b) : currentStep === b;
+
     interactiveHtml += `<p class="hint">${modeHint}</p>`;
-    if (resourceUrl){
+
+    if (useStepper){
+      const stepShortLabels = {pdf:'Leggi PDF', minitest:'Quiz rapido', score:'Registra punteggio'};
+      interactiveHtml += `<div class="step-nav">` + availableBlocks.map((b,i)=>
+        `<button class="step-nav-btn ${b===currentStep?'active':''}" data-step="${b}" data-topickey="${topicClean.replace(/"/g,'&quot;')}">${i+1}. ${stepShortLabels[b]}</button>`
+      ).join('') + `</div>`;
+    }
+
+    if (showBlock('pdf') && resourceUrl){
       interactiveHtml += `<a href="${resourceUrl}" target="_blank" rel="noopener" class="btn pdf-btn">📄 Apri il PDF</a>`;
     }
-    if (hasQuizBank){
+    if (showBlock('minitest') && hasQuizBank){
       interactiveHtml += `<button class="btn quiz-btn start-quiz-btn" data-topic="${topicClean}">📝 Fai il mini-test (${QUESTION_BANK[topicClean].length} domande)</button>`;
     }
-    if (modeClass === 'mode-quiz' || HYBRID_SCORE_TOPICS.has(topicClean)){
+    if (showBlock('score') && showScoreEntry){
       interactiveHtml += `
         <div class="score-entry">
           <span class="score-label">Risultato quiz Concorsando:</span>
@@ -1241,6 +1441,21 @@ let calendarViewDate = new Date(); // mese attualmente mostrato nella vista mens
 let expandedHistory = new Set(); // materie con cronologia punteggi espansa, non persistito
 let analysisExpanded = false; // sezione "Analisi per materia" aperta/chiusa, non persistito
 let customFormExpanded = false; // form sessione custom aperto/chiuso, non persistito
+
+// --- Stato interfaccia a schede (v2, "tabs_version") ---
+let activeTab = 'oggi';
+try { activeTab = localStorage.getItem('tracker-active-tab') || 'oggi'; } catch(e){}
+function switchTab(tabId){
+  activeTab = tabId;
+  try { localStorage.setItem('tracker-active-tab', tabId); } catch(e){}
+  render();
+}
+
+let materiaStep = {}; // topicClean -> 'pdf'|'minitest'|'score', per materia, non persistito
+function getMateriaStep(topicClean, availableBlocks){
+  const saved = materiaStep[topicClean];
+  return (saved && availableBlocks.includes(saved)) ? saved : availableBlocks[0];
+}
 let selectedCalendarDay = null; // dateKey del giorno cliccato nel calendario per il dettaglio, non persistito
 
 function calculateStreak(){
@@ -1412,10 +1627,10 @@ function getTopicStats(topicClean){
 
 // Raccoglie tutte le materie nell'ambito scelto (solo la categoria in focus, o tutte e 5),
 // divise tra "già testate" (ordinate dalla più debole) e "mai testate".
-function buildTopicAnalysis(){
-  const scopeCats = state.focusMode
-    ? [state.focusMode]
-    : CATEGORY_KEYS;
+function buildTopicAnalysis(forceAll){
+  const scopeCats = (forceAll || !state.focusMode)
+    ? CATEGORY_KEYS
+    : [state.focusMode];
   const tested = [];
   const untested = [];
   scopeCats.forEach(cat=>{
@@ -1432,6 +1647,39 @@ function buildTopicAnalysis(){
   });
   tested.sort((a,b)=> a.avgPct - b.avgPct);
   return { tested, untested };
+}
+
+function buildCategoryAccordion(cat, openByDefault){
+  const cd = CATS[cat];
+  const done = state.indices[cat] || 0;
+  const customCount = categoryCustomCount(cat);
+  const totalCount = done + customCount;
+  const cycle = totalCount % cd.topics.length;
+  const pct = Math.round((cycle / cd.topics.length) * 100) || (totalCount>0 ? 100 : 0);
+
+  const topicsListHtml = cd.topics.map(t=>{
+    const topicClean = computeModeInfo(t, cd).topicClean;
+    const m = isMastered(topicClean);
+    const s = getTopicStats(topicClean);
+    let badge = '';
+    if(m){
+      badge = `<span class="chip chip-good">✓ padroneggiato</span>`;
+    } else if(s && s.avgPct < 80){
+      badge = `<span class="chip chip-weak">Da rinforzare (${s.avgPct}%)</span>`;
+    }
+    return `<div class="accordion-topic-row"><span class="accordion-topic-name">${topicClean}</span>${badge}</div>`;
+  }).join('');
+
+  return `
+    <details class="cat-accordion" ${openByDefault ? 'open' : ''}>
+      <summary>
+        <span class="accordion-summary-name" style="color:${cd.color}">${cd.label}</span>
+        <span class="accordion-summary-meta">${cd.tag}</span>
+        <div class="mini-progress-track"><div class="mini-progress-fill" style="width:${pct}%; background:${cd.color}"></div></div>
+        <span class="accordion-summary-pct">${pct}%</span>
+      </summary>
+      <div class="accordion-body">${topicsListHtml}</div>
+    </details>`;
 }
 
 
@@ -1939,7 +2187,7 @@ function render(){
       </div>`;
   }
 
-  // --- Barra di controllo modalità focus ---
+  // --- Barra di conferma focus (la scelta ora avviene dal menu a tendina nell'header) ---
   const focusAccent = state.focusMode ? CATS[state.focusMode].color : null;
   let focusBarHtml = '';
   if (state.focusMode){
@@ -1948,88 +2196,151 @@ function render(){
       <span class="focus-label" style="color:${fc.color}">🎯 Focus: ${fc.label}</span>
       <button class="reset-link focus-reset-btn" id="focusResetBtn">torna alla rotazione automatica</button>
     </div>`;
-  } else {
-    focusBarHtml = `<div class="focus-bar">
-      <span class="focus-label">🔄 Rotazione automatica attiva</span>
-      <span class="focus-btns">
-        ${CATEGORY_KEYS.map(c=>`<button class="focus-choice-btn" data-focus="${c}" style="border-color:${CATS[c].color}; color:${CATS[c].color}">${CATS[c].tag}</button>`).join('')}
-      </span>
-    </div>`;
   }
+
+  // --- Header compatto: logo + selettore focus a tendina + streak pill, tutto su una riga ---
+  const focusSelectHtml = `
+    <select class="focus-pill-select" id="focusPillSelect">
+      <option value="">🔄 Rotazione automatica</option>
+      ${CATEGORY_KEYS.map(c=>`<option value="${c}" ${state.focusMode===c?'selected':''}>${CATS[c].label}</option>`).join('')}
+    </select>`;
+  const shieldsCountHeader = state.streakShields || 0;
+  const streakPillHtml = `
+    <div class="streak-pill">
+      <span class="flame-sm">🔥</span> ${streak}
+      ${shieldsCountHeader>0 ? `<span class="shield-pill">🛡️ ${shieldsCountHeader}/3</span>` : ''}
+    </div>`;
+  const headerCompactHtml = `
+    <div class="header-compact">
+      <img src="${LOGO_DATA_URI}" class="app-logo-img" alt="SbancaDati">
+      ${focusSelectHtml}
+      ${streakPillHtml}
+    </div>`;
+
+  // --- Barra delle schede ---
+  const TABS = [
+    {id:'oggi', label:'Oggi'},
+    {id:'programma', label:'Programma & Concorsi'},
+    {id:'calendario', label:'Calendario'},
+    {id:'statistiche', label:'Statistiche'},
+    {id:'impostazioni', label:'Impostazioni & Dati'}
+  ];
+  const tabBarHtml = `<div class="tab-bar">` + TABS.map(t=>
+    `<button class="tab-btn ${activeTab===t.id?'active':''}" data-tab="${t.id}">${t.label}</button>`
+  ).join('') + `</div>`;
+
+  // --- Accordion per il tab "Programma & Concorsi" ---
+  const accordionListHtml = CATEGORY_KEYS.map(c => buildCategoryAccordion(c, c===cat)).join('');
+
+  // --- KPI per il tab "Statistiche": sempre su TUTTE le categorie, indipendenti dal focus ---
+  const globalAnalysis = buildTopicAnalysis(true);
+  const kpiTotalSessions = CATEGORY_KEYS.reduce((sum,c)=> sum + (state.indices[c]||0) + categoryCustomCount(c), 0);
+  const kpiAvgScore = globalAnalysis.tested.length ? Math.round(globalAnalysis.tested.reduce((s,t)=>s+t.avgPct,0)/globalAnalysis.tested.length) : null;
+  const kpiCriticalCount = globalAnalysis.tested.filter(t=>t.avgPct<80).length;
+  const kpiCardsHtml = `
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value">${kpiTotalSessions}</div>
+        <div class="kpi-label">Sessioni totali</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">${kpiAvgScore!==null ? kpiAvgScore+'%' : '—'}</div>
+        <div class="kpi-label">Media punteggio</div>
+      </div>
+      <div class="kpi-card ${kpiCriticalCount>0?'kpi-warning':''}">
+        <div class="kpi-value">${kpiCriticalCount}</div>
+        <div class="kpi-label">Materie critiche</div>
+      </div>
+    </div>`;
 
   document.getElementById('sheet').style.setProperty('--focus-accent', focusAccent || 'var(--ink)');
   document.getElementById('sheet').innerHTML = `
-    <div class="header">
-      <div>
-        <img src="${LOGO_DATA_URI}" class="app-logo-img" alt="SbancaDati — Posto Fisso">
-        <div class="sub">3 concorsi attivi · 30–60 min al giorno</div>
+    ${headerCompactHtml}
+
+    ${tabBarHtml}
+
+    <div class="tab-panel" data-tab-panel="oggi" style="${activeTab==='oggi'?'':'display:none'}">
+      ${streakHeroHtml}
+      <div class="week-summary">
+        ${weekAvgScore!==null ? `Media punteggi questa settimana: <b>${weekAvgScore}%</b>` : 'Nessun punteggio salvato ancora questa settimana'}
       </div>
-      <div class="protocollo">
-        PROT. N. ${key.replace(/-/g,'/')}<br>
-        ${DAY_NAMES[today.getDay()]}
+      ${focusBarHtml}
+      ${focusPriorityHtml}
+      <div class="hero">
+        <div class="eyebrow">Sessione di oggi</div>
+        ${mainCardHtml}
+        ${bonusSectionHtml}
+      </div>
+      ${customSectionHtml}
+    </div>
+
+    <div class="tab-panel" data-tab-panel="programma" style="${activeTab==='programma'?'':'display:none'}">
+      ${accordionListHtml}
+    </div>
+
+    <div class="tab-panel" data-tab-panel="calendario" style="${activeTab==='calendario'?'':'display:none'}">
+      <div class="week">
+        <div class="eyebrow">Settimana in corso</div>
+        <div class="week-grid">${weekHtml}</div>
+      </div>
+      <div class="month">
+        <div class="month-header">
+          <button class="nav-btn" id="prevMonthBtn">‹</button>
+          <span class="eyebrow month-title">${MONTH_NAMES[calendarViewDate.getMonth()]} ${calendarViewDate.getFullYear()}${isCurrentMonthView ? '' : ' <a href=\"#\" id=\"backTodayLink\" class=\"back-today\">torna a oggi</a>'}</span>
+          <button class="nav-btn" id="nextMonthBtn">›</button>
+        </div>
+        <div class="month-grid">${monthHtml}</div>
+        ${dayDetailHtml}
       </div>
     </div>
 
-    ${streakHeroHtml}
-
-    <div class="week-summary">
-      ${weekAvgScore!==null ? `Media punteggi questa settimana: <b>${weekAvgScore}%</b>` : 'Nessun punteggio salvato ancora questa settimana'}
-    </div>
-
-    <div class="legend">
-      <span><span class="dot" style="background:${CATS.comune.color}"></span>Comune</span>
-      <span><span class="dot" style="background:${CATS.pecspre.color}"></span>PECS Presel.</span>
-      <span><span class="dot" style="background:${CATS.pecsscritto.color}"></span>PECS Scritto</span>
-      <span><span class="dot" style="background:${CATS.dtd2.color}"></span>DTD2</span>
-      <span><span class="dot" style="background:${CATS.informatico.color}"></span>Informatico (backup)</span>
-    </div>
-
-    ${focusBarHtml}
-    ${focusPriorityHtml}
-
-    <div class="hero">
-      <div class="eyebrow">Sessione di oggi</div>
-      ${mainCardHtml}
-      ${bonusSectionHtml}
-    </div>
-
-    ${customSectionHtml}
-
-    <div class="week">
-      <div class="eyebrow">Settimana in corso</div>
-      <div class="week-grid">${weekHtml}</div>
-    </div>
-
-    <div class="month">
-      <div class="month-header">
-        <button class="nav-btn" id="prevMonthBtn">‹</button>
-        <span class="eyebrow month-title">${MONTH_NAMES[calendarViewDate.getMonth()]} ${calendarViewDate.getFullYear()}${isCurrentMonthView ? '' : ' <a href=\"#\" id=\"backTodayLink\" class=\"back-today\">torna a oggi</a>'}</span>
-        <button class="nav-btn" id="nextMonthBtn">›</button>
+    <div class="tab-panel" data-tab-panel="statistiche" style="${activeTab==='statistiche'?'':'display:none'}">
+      ${kpiCardsHtml}
+      <div class="progress">
+        <div class="eyebrow">Avanzamento pratiche</div>
+        ${progressHtml}
       </div>
-      <div class="month-grid">${monthHtml}</div>
-      ${dayDetailHtml}
+      ${analysisSectionHtml}
     </div>
 
-    <div class="progress">
-      <div class="eyebrow">Avanzamento pratiche</div>
-      ${progressHtml}
-    </div>
-
-    ${analysisSectionHtml}
-
-    <div class="footer">
-      Sabato si alterna tra PECS Preselezione e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
-      Per le simulazioni usa il simulatore quiz su <a href="https://www.concorsando.it" target="_blank" rel="noopener">Concorsando.it</a>.
-      <br><br>
-      ${(typeof Notification !== 'undefined' && Notification.permission === 'granted')
-        ? '<span class="reminder-on">🔔 Promemoria attivo</span> ·'
-        : '<button class="reset-link" id="reminderBtn">🔔 attiva promemoria notifiche</button> ·'}
-      <button class="reset-link" id="exportBtn">esporta backup</button> ·
-      <button class="reset-link" id="importBtn">importa backup</button> ·
-      <button class="reset-link" id="resetBtn">reimposta tutti i progressi</button>
-      <input type="file" id="importFile" accept="application/json" style="display:none">
+    <div class="tab-panel" data-tab-panel="impostazioni" style="${activeTab==='impostazioni'?'':'display:none'}">
+      <div class="legend">
+        <span><span class="dot" style="background:${CATS.comune.color}"></span>Comune</span>
+        <span><span class="dot" style="background:${CATS.pecspre.color}"></span>PECS Presel.</span>
+        <span><span class="dot" style="background:${CATS.pecsscritto.color}"></span>PECS Scritto</span>
+        <span><span class="dot" style="background:${CATS.dtd2.color}"></span>DTD2</span>
+        <span><span class="dot" style="background:${CATS.informatico.color}"></span>Informatico (backup)</span>
+      </div>
+      <div class="footer">
+        Sabato si alterna tra PECS Preselezione e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
+        Per le simulazioni usa il simulatore quiz su <a href="https://www.concorsando.it" target="_blank" rel="noopener">Concorsando.it</a>.
+        <br><br>
+        ${(typeof Notification !== 'undefined' && Notification.permission === 'granted')
+          ? '<span class="reminder-on">🔔 Promemoria attivo</span> ·'
+          : '<button class="reset-link" id="reminderBtn">🔔 attiva promemoria notifiche</button> ·'}
+        <button class="reset-link" id="exportBtn">esporta backup</button> ·
+        <button class="reset-link" id="importBtn">importa backup</button> ·
+        <button class="reset-link" id="resetBtn">reimposta tutti i progressi</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none">
+      </div>
     </div>
   `;
+
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> switchTab(btn.dataset.tab));
+  });
+
+  const focusPillSelectEl = document.getElementById('focusPillSelect');
+  if(focusPillSelectEl) focusPillSelectEl.addEventListener('change', ()=>{
+    setFocusMode(focusPillSelectEl.value || null);
+  });
+
+  document.querySelectorAll('.step-nav-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      materiaStep[btn.dataset.topickey] = btn.dataset.step;
+      render();
+    });
+  });
 
   document.querySelectorAll('.done-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
