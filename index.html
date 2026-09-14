@@ -865,6 +865,16 @@ function makeEmptyIndices(){
   return obj;
 }
 
+// Materie che hanno SIA il PDF/mini-test integrato SIA una banca quiz vera su Concorsando —
+// per queste mostriamo entrambe le opzioni nella stessa card, invece che una sola.
+const HYBRID_SCORE_TOPICS = new Set([
+  'Ordinamento degli enti locali — TUEL D.Lgs. 267/2000',
+  'Pubblico impiego e rapporto di lavoro negli enti locali',
+  'Codice dei contratti pubblici — D.Lgs. 36/2023',
+  'Elementi di diritto penale — reati contro la PA',
+  'Anticorruzione, trasparenza e privacy — L.190/2012, D.Lgs.33/2013, GDPR'
+]);
+
 const QUESTION_BANK = {
   'Diritto del lavoro e della previdenza': [
     {q:'Quale articolo della Costituzione fonda la Repubblica sul lavoro?', o:['Art. 4','Art. 1','Art. 36','Art. 97'], a:1},
@@ -1070,13 +1080,19 @@ function computeModeInfo(topic, catData){
     topicClean = topic.replace(' (quiz Concorsando)', '');
     modeHint = `Vai su Concorsando, seleziona solo questa materia (non "Tutte") e fai una sessione di quiz mirata. Rivedi ogni errore prima di chiudere — è lì che si impara, non nel punteggio.`;
   } else if (topic.includes('(manuale, non su Concorsando')) {
-    modeClass = 'mode-manual';
-    modeLabel = 'LETTURA · NON SU CONCORSANDO';
     topicClean = topic.replace(/ \(manuale, non su Concorsando[^)]*\)/, '');
     resourceUrl = RESOURCE_LINKS[topicClean] || null;
-    modeHint = resourceUrl
-      ? `Questa materia non ha quiz su Concorsando — è testo da leggere e capire. Il PDF con i contenuti mirati è pronto qui sotto.`
-      : `Questa materia non ha quiz su Concorsando — è testo da leggere e capire, non da "fare". Chiedimi le fonti quando arrivi qui e te le trovo.`;
+    if (HYBRID_SCORE_TOPICS.has(topicClean)){
+      modeClass = 'mode-quiz';
+      modeLabel = 'PDF + QUIZ SU CONCORSANDO';
+      modeHint = `Questa materia ha sia il PDF con i contenuti mirati (sotto) sia una banca quiz vera su Concorsando — usa entrambi: PDF per la teoria, Concorsando per esercitarti, e salva qui il punteggio.`;
+    } else {
+      modeClass = 'mode-manual';
+      modeLabel = 'LETTURA · NON SU CONCORSANDO';
+      modeHint = resourceUrl
+        ? `Questa materia non ha quiz su Concorsando — è testo da leggere e capire. Il PDF con i contenuti mirati è pronto qui sotto.`
+        : `Questa materia non ha quiz su Concorsando — è testo da leggere e capire, non da "fare". Chiedimi le fonti quando arrivi qui e te le trovo.`;
+    }
   } else if (topic.includes('(comune a')) {
     modeClass = 'mode-quiz';
     modeLabel = 'ESERCITAZIONE · QUIZ SU CONCORSANDO';
@@ -1162,7 +1178,7 @@ function buildSessionCard(cat, isBonus){
     if (hasQuizBank){
       interactiveHtml += `<button class="btn quiz-btn start-quiz-btn" data-topic="${topicClean}">📝 Fai il mini-test (${QUESTION_BANK[topicClean].length} domande)</button>`;
     }
-    if (modeClass === 'mode-quiz'){
+    if (modeClass === 'mode-quiz' || HYBRID_SCORE_TOPICS.has(topicClean)){
       interactiveHtml += `
         <div class="score-entry">
           <span class="score-label">Risultato quiz Concorsando:</span>
