@@ -1108,7 +1108,7 @@ function buildSessionCard(cat, isBonus){
   // Se la sessione è già stata completata oggi, la card resta "congelata" sull'argomento
   // che hai davvero finito — non deve ricalcolarsi sull'indice nuovo (già avanzato),
   // altrimenti principale e bonus finiscono a mostrare lo stesso argomento "in coda".
-  const liveIdx = state.indices[cat] % catData.topics.length;
+  const liveIdx = (state.indices[cat] || 0) % catData.topics.length;
   let topic = catData.topics[liveIdx];
   if (doneState){
     const storedCleanTopic = isBonus
@@ -1511,6 +1511,14 @@ function migrateOldPecsCategory(){
   if(state.indices && state.indices.pecspre === undefined) state.indices.pecspre = 0;
   if(state.indices && state.indices.pecsscritto === undefined) state.indices.pecsscritto = 0;
   if(state.focusMode === 'pecs') state.focusMode = 'pecspre';
+
+  // Protezione generale, valida per QUALUNQUE categoria aggiunta in futuro (non solo questa):
+  // se un account ha dati salvati da prima che una categoria esistesse, la sua chiave manca
+  // nell'oggetto indices — la inizializzo a 0 invece di lasciarla "undefined", che altrimenti
+  // manda in errore qualunque card provi a mostrare quella categoria.
+  CATEGORY_KEYS.forEach(k=>{
+    if(state.indices[k] === undefined) state.indices[k] = 0;
+  });
 
   // Migro anche lo storico: sessioni già completate con la vecchia categoria unica "pecs"
   // devono puntare a "pecspre", altrimenti il tracker va in errore cercando una categoria
