@@ -1266,16 +1266,6 @@ function getActiveCategories(){
   return CATEGORY_KEYS.filter(c => !inactive.includes(c));
 }
 
-// Niente più rotazione automatica: ogni giorno mostra TUTTI i concorsi attivi, ciascuno
-// completabile direttamente. Il Focus, se impostato, serve solo a mettere quel concorso
-// in cima alla lista — non blocca né sblocca più nulla.
-function getOrderedActiveCategories(){
-  const active = getActiveCategories();
-  if(state.focusMode && active.includes(state.focusMode)){
-    return [state.focusMode, ...active.filter(c => c !== state.focusMode)];
-  }
-  return active;
-}
 async function setFocusMode(catOrNull){
   state.focusMode = catOrNull;
   await saveState();
@@ -1980,10 +1970,10 @@ function render(){
   const today = new Date();
   const key = dateKey(today);
 
-  // Niente più rotazione automatica: mostro TUTTI i concorsi attivi, uno per card, con
-  // quello in Focus (se impostato) in cima — nessuno sblocca gli altri, sono tutti sempre
-  // completabili direttamente, indipendentemente dagli altri.
-  const orderedCats = getOrderedActiveCategories();
+  // Focus attivo = mostro SOLO quel concorso, nient'altro. Nessun focus = tutti i concorsi attivi.
+  const orderedCats = (state.focusMode && getActiveCategories().includes(state.focusMode))
+    ? [state.focusMode]
+    : getActiveCategories();
   const allCardsHtml = orderedCats.map(c => buildSessionCard(c)).join('');
 
   // --- Sezione custom: sempre disponibile, per registrare studio fatto per conto proprio (es. Mininterno) ---
@@ -2267,16 +2257,16 @@ function render(){
   if (state.focusMode){
     const fc = CATS[state.focusMode];
     focusBarHtml = `<div class="focus-bar focus-active">
-      <span class="focus-label" style="color:${fc.color}">🎯 ${fc.label} in cima</span>
-      <button class="reset-link focus-reset-btn" id="focusResetBtn">togli</button>
+      <span class="focus-label" style="color:${fc.color}">🎯 Solo ${fc.label}</span>
+      <button class="reset-link focus-reset-btn" id="focusResetBtn">mostra tutti</button>
     </div>`;
   }
 
   // --- Header compatto: logo + selettore focus a tendina + streak pill, tutto su una riga ---
   const focusSelectHtml = `
     <select class="focus-pill-select" id="focusPillSelect">
-      <option value="">Nessun concorso in cima</option>
-      ${getActiveCategories().map(c=>`<option value="${c}" ${state.focusMode===c?'selected':''}>📌 ${CATS[c].label}</option>`).join('')}
+      <option value="">Tutti i concorsi</option>
+      ${getActiveCategories().map(c=>`<option value="${c}" ${state.focusMode===c?'selected':''}>🎯 Solo ${CATS[c].label}</option>`).join('')}
     </select>`;
   const shieldsCountHeader = state.streakShields || 0;
   const streakPillHtml = `
