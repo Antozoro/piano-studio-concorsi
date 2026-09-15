@@ -483,6 +483,15 @@
   }
   .day-chip.today{ border-color: var(--focus-accent, var(--primary)); border-width: 2px; }
   .day-chip.done .mark{ border-color: transparent; }
+  .mark-dots{
+    display:flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 14px;
+    align-items: center;
+  }
+  .mark-dots .dot-item{ width:7px; height:7px; border-radius:50%; }
   /* ---------- CALENDARIO (compatto) ---------- */
   .month{ padding: 14px 20px; }
   .month-header{
@@ -893,6 +902,12 @@
     border-bottom: 1px dashed var(--border);
     margin-bottom: 6px;
   }
+  .accordion-streak{
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--warning);
+    margin-bottom: 10px;
+  }
   .switch-label{
     display:flex;
     align-items:center;
@@ -989,17 +1004,6 @@
 const LOGO_DATA_URI = 'data:image/png;base64,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';
 
 const CATS = {
-  comune: {
-    label: 'Fondamenta comuni',
-    tag: 'BASE COMUNE',
-    color: 'var(--comune)',
-    topics: [
-      'Inglese (comune a tutti e 3 — Concorsando)',
-      'Data privacy e sicurezza informatica / GDPR (comune a DTD2 e Informatico — Concorsando)',
-      'Ripasso Inglese + Privacy/GDPR (quiz Concorsando)',
-      'Simulazione quiz — materie comuni (quiz Concorsando)'
-    ]
-  },
   pecspre: {
     label: 'PECS — Preselezione',
     tag: 'PECS PRESEL. · 1.695 POSTI',
@@ -1009,7 +1013,7 @@ const CATS = {
       'Cultura generale (quiz Concorsando)',
       'Informatica (quiz Concorsando)',
       'Logica (quiz Concorsando)',
-      'Inglese (comune a tutti e 3 — Concorsando)'
+      'Inglese (quiz Concorsando)'
     ]
   },
   pecsscritto: {
@@ -1038,7 +1042,9 @@ const CATS = {
       'PNRR — misure sulla digitalizzazione (quiz Concorsando)',
       'Disciplina degli appalti pubblici D.Lgs. 36/2023 (quiz Concorsando)',
       'Elementi di intelligenza artificiale (quiz Concorsando)',
-      'Quesiti situazionali DTD2 (quiz Concorsando)'
+      'Quesiti situazionali DTD2 (quiz Concorsando)',
+      'Inglese (quiz Concorsando)',
+      'Data privacy e sicurezza informatica / GDPR (quiz Concorsando)'
     ]
   },
   informatico: {
@@ -1059,7 +1065,8 @@ const CATS = {
       'CAD — Codice Amministrazione Digitale (quiz Concorsando)',
       'Nozioni di diritto amministrativo (quiz Concorsando)',
       'Ordinamento del lavoro alle dipendenze della PA (quiz Concorsando)',
-      'Principi di Intelligenza Artificiale (quiz Concorsando)'
+      'Principi di Intelligenza Artificiale (quiz Concorsando)',
+      'Inglese (quiz Concorsando)'
     ]
   },
   funzionarioel: {
@@ -1253,38 +1260,21 @@ function isoWeek(d){
   const diff = (date - firstThursday) / 86400000;
   return 1 + Math.round(diff/7);
 }
-function dayCategory(d){
-  const day = d.getDay();
-  if(day===1) return 'comune';
-  if(day===2) return 'pecspre';
-  if(day===3) return 'dtd2';
-  if(day===4) return 'pecspre';
-  if(day===5) return 'dtd2';
-  if(day===6) return (isoWeek(d) % 2 === 0) ? 'pecspre' : 'dtd2';
-  return 'informatico'; // Sunday
-}
 
 function getActiveCategories(){
   const inactive = state.inactiveCategories || [];
   return CATEGORY_KEYS.filter(c => !inactive.includes(c));
 }
 
-// Se è attiva la modalità focus, sovrascrive la rotazione automatica per QUALSIASI giorno.
-// Altrimenti: se la categoria assegnata al giorno è stata disattivata, i suoi giorni vengono
-// redistribuiti in modo stabile (stessa data = sempre la stessa categoria) tra le categorie
-// con giorno fisso rimaste attive — mai un giorno "vuoto" senza sessione proposta.
-function effectiveDayCategory(d){
-  if(state.focusMode) return state.focusMode;
-  const base = dayCategory(d);
+// Niente più rotazione automatica: ogni giorno mostra TUTTI i concorsi attivi, ciascuno
+// completabile direttamente. Il Focus, se impostato, serve solo a mettere quel concorso
+// in cima alla lista — non blocca né sblocca più nulla.
+function getOrderedActiveCategories(){
   const active = getActiveCategories();
-  if(active.includes(base)) return base;
-
-  const fixedDayCats = ['comune','pecspre','dtd2','informatico'].filter(c => active.includes(c));
-  if(fixedDayCats.length === 0){
-    return active[0] || 'comune'; // nessuna categoria a giorno fisso attiva: usa la prima extra attiva
+  if(state.focusMode && active.includes(state.focusMode)){
+    return [state.focusMode, ...active.filter(c => c !== state.focusMode)];
   }
-  const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
-  return fixedDayCats[dayOfYear % fixedDayCats.length];
+  return active;
 }
 async function setFocusMode(catOrNull){
   state.focusMode = catOrNull;
@@ -1325,7 +1315,7 @@ const SUPABASE_URL = 'https://qvtrbloiykgimhinvpvj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2dHJibG9peWtnaW1oaW52cHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDIyMDgsImV4cCI6MjA5OTU3ODIwOH0.ghPTJ8pOnrteQbvksuDwdn-LKj9SBeppSYlj3uOmwgI';
 const USER_ID = 'antonio';
 
-let state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
+let state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
 
 function getAllTopicsList(){
   const list = [];
@@ -1375,28 +1365,22 @@ function computeModeInfo(topic, catData){
 }
 let activeQuiz = null; // stato del mini-test in corso, non persistito finché non si salva il risultato
 
-function buildSessionCard(cat, isBonus){
+function buildSessionCard(cat){
   const catData = CATS[cat];
   if(!catData){
     // Categoria orfana/sconosciuta (dato storico incoerente): mostro un avviso
     // invece di far crashare l'intera pagina.
     return `<div class="task-card"><p class="hint">Sessione non mostrabile — categoria "${cat}" non più riconosciuta (probabile dato storico da prima di un aggiornamento). Nessun impatto sugli altri dati.</p></div>`;
   }
-  const domId = isBonus ? `${cat}-bonus` : cat;
   const todayKey = dateKey(new Date());
-  const doneState = isBonus
-    ? !!(state.bonusLog[todayKey] && state.bonusLog[todayKey][cat])
-    : !!state.log[todayKey];
+  const doneState = !!(state.log[todayKey] && state.log[todayKey][cat]);
 
   // Se la sessione è già stata completata oggi, la card resta "congelata" sull'argomento
-  // che hai davvero finito — non deve ricalcolarsi sull'indice nuovo (già avanzato),
-  // altrimenti principale e bonus finiscono a mostrare lo stesso argomento "in coda".
+  // che hai davvero finito — non deve ricalcolarsi sull'indice nuovo (già avanzato).
   const liveIdx = (state.indices[cat] || 0) % catData.topics.length;
   let topic = catData.topics[liveIdx];
   if (doneState){
-    const storedCleanTopic = isBonus
-      ? (state.bonusLog[todayKey][cat] && state.bonusLog[todayKey][cat].topic)
-      : (state.log[todayKey] && state.log[todayKey].topic);
+    const storedCleanTopic = state.log[todayKey][cat].topic;
     if (storedCleanTopic){
       const found = catData.topics.find(t => computeModeInfo(t, catData).topicClean === storedCleanTopic);
       if (found) topic = found;
@@ -1466,10 +1450,10 @@ function buildSessionCard(cat, isBonus){
       interactiveHtml += `
         <div class="score-entry">
           <span class="score-label">Risultato quiz Concorsando:</span>
-          <input type="number" id="scoreCorrect-${domId}" min="0" placeholder="corrette">
+          <input type="number" id="scoreCorrect-${cat}" min="0" placeholder="corrette">
           <span>/</span>
-          <input type="number" id="scoreTotal-${domId}" min="1" placeholder="totali">
-          <button class="btn small save-score-btn" data-cat="${domId}" data-topic="${topicClean}">Salva</button>
+          <input type="number" id="scoreTotal-${cat}" min="1" placeholder="totali">
+          <button class="btn small save-score-btn" data-cat="${cat}" data-topic="${topicClean}">Salva</button>
         </div>`;
     }
     if (lastScore){
@@ -1497,12 +1481,10 @@ function buildSessionCard(cat, isBonus){
   }
 
   const showDoneBtn = (!activeQuiz || activeQuiz.topic !== topicClean);
-  const doneBtnLabel = doneState
-    ? (isBonus ? '✓ Bonus completato oggi' : '✓ Pratica evasa oggi')
-    : (isBonus ? 'Segna come completata (bonus)' : 'Segna come completata');
+  const doneBtnLabel = doneState ? '✓ Completata oggi' : 'Segna come completata';
 
   return `
-    <div class="task-card ${isBonus?'bonus-card':''}" id="session-card-${domId}">
+    <div class="task-card" id="session-card-${cat}">
       <div class="card-top-row">
         <div class="badge-group">
           <span class="cat-tag" style="background:${catData.color}">${catData.tag}</span>
@@ -1512,7 +1494,7 @@ function buildSessionCard(cat, isBonus){
       </div>
       <h2>${topicClean}${isMastered(topicClean) ? ' <span class="mastered-badge">✓ padroneggiato</span>' : ''}</h2>
       ${interactiveHtml}
-      ${showDoneBtn ? `<button class="btn done-btn ${!isBonus?'primary-action':''} ${doneState?'done':''}" data-cat="${cat}" data-bonus="${isBonus?'1':'0'}">${doneBtnLabel}</button>` : ''}
+      ${showDoneBtn ? `<button class="btn done-btn primary-action ${doneState?'done':''}" data-cat="${cat}">${doneBtnLabel}</button>` : ''}
     </div>`;
 }
 let calendarViewDate = new Date(); // mese attualmente mostrato nella vista mensile, non persistito
@@ -1536,16 +1518,20 @@ function getMateriaStep(topicClean, availableBlocks){
 }
 let selectedCalendarDay = null; // dateKey del giorno cliccato nel calendario per il dettaglio, non persistito
 
+function hasAnyActivityOnDay(dKey){
+  return !!(state.log[dKey] && Object.keys(state.log[dKey]).length > 0);
+}
+
 function calculateStreak(){
   let streak = 0;
   let d = new Date();
   const todayKey = dateKey(d);
-  if(!state.log[todayKey]){
+  if(!hasAnyActivityOnDay(todayKey)){
     d.setDate(d.getDate()-1);
   }
   while(true){
     const k = dateKey(d);
-    if(state.log[k] || (state.shieldedDates && state.shieldedDates.includes(k))){
+    if(hasAnyActivityOnDay(k) || (state.shieldedDates && state.shieldedDates.includes(k))){
       streak++;
       d.setDate(d.getDate()-1);
     } else break;
@@ -1553,30 +1539,25 @@ function calculateStreak(){
   return streak;
 }
 
-// Un giorno "conta" per il focus X se quel giorno è stato toccato come principale O come
-// bonus su X — nessun dato nuovo da salvare, deriva da quello che già registri ogni giorno.
-function isFocusTouchedOnDay(dKey, cat){
-  if(state.log[dKey] && state.log[dKey].cat === cat) return true;
-  if(state.bonusLog[dKey] && state.bonusLog[dKey][cat]) return true;
-  return false;
+// Un giorno "conta" per la categoria X se quel giorno l'hai completata — a prescindere
+// da quante altre categorie hai fatto lo stesso giorno.
+function isCategoryTouchedOnDay(dKey, cat){
+  return !!(state.log[dKey] && state.log[dKey][cat]);
 }
 
-// Giorni di fila sullo STESSO focus attuale — si azzera se salti un giorno, ma anche se cambi
-// focus (tornare a un vecchio focus riparte da zero, non riprende il conteggio precedente):
-// camminando all'indietro basta che un giorno non abbia quella specifica categoria toccata
-// (nemmeno come bonus) per fermare il conteggio, anche se quel giorno avevi studiato altro.
-function calculateFocusStreak(){
-  if(!state.focusMode) return 0;
-  const cat = state.focusMode;
+// Giorni di fila sulla STESSA categoria — si azzera se la salti un giorno, anche se quel
+// giorno hai studiato altro. Usata sia per lo streak del Focus (in cima) sia, per ogni
+// concorso singolarmente, dentro la sua fisarmonica nella tab "Programma & Concorsi".
+function calculateCategoryStreak(cat){
   let streak = 0;
   let d = new Date();
   const todayKey = dateKey(d);
-  if(!isFocusTouchedOnDay(todayKey, cat)){
+  if(!isCategoryTouchedOnDay(todayKey, cat)){
     d.setDate(d.getDate()-1);
   }
   while(true){
     const k = dateKey(d);
-    if(isFocusTouchedOnDay(k, cat)){
+    if(isCategoryTouchedOnDay(k, cat)){
       streak++;
       d.setDate(d.getDate()-1);
     } else break;
@@ -1735,6 +1716,7 @@ function buildCategoryAccordion(cat, openByDefault){
   const totalCount = done + customCount;
   const cycle = totalCount % cd.topics.length;
   const pct = Math.round((cycle / cd.topics.length) * 100) || (totalCount>0 ? 100 : 0);
+  const catStreak = calculateCategoryStreak(cat);
 
   const topicsListHtml = cd.topics.map(t=>{
     const topicClean = computeModeInfo(t, cd).topicClean;
@@ -1762,9 +1744,10 @@ function buildCategoryAccordion(cat, openByDefault){
           <label class="switch-label">
             <input type="checkbox" class="cat-toggle-input" data-cat="${cat}" ${isActive ? 'checked' : ''}>
             <span class="switch-track"></span>
-            <span class="switch-text">${isActive ? 'Attiva — compare in rotazione, focus, bonus e statistiche' : 'Disattivata — nascosta ovunque, ma i tuoi dati restano intatti'}</span>
+            <span class="switch-text">${isActive ? 'Attiva — compare tra i concorsi di oggi, nel Focus e nelle statistiche' : 'Disattivata — nascosta ovunque, ma i tuoi dati restano intatti'}</span>
           </label>
         </div>
+        ${isActive && catStreak > 0 ? `<div class="accordion-streak">🔥 ${catStreak} giorn${catStreak===1?'o':'i'} di fila su questo concorso</div>` : ''}
         ${topicsListHtml}
       </div>
     </details>`;
@@ -1901,6 +1884,13 @@ function migrateOldPecsCategory(){
   if(state.indices && state.indices.pecsscritto === undefined) state.indices.pecsscritto = 0;
   if(state.focusMode === 'pecs') state.focusMode = 'pecspre';
 
+  // "Fondamenta comuni" è stata eliminata: Inglese e Privacy/GDPR vivono ora dentro ogni
+  // concorso che ne ha bisogno (stesso nome materia = punteggi e cronologia già salvati
+  // restano validi). Ripulisco solo i riferimenti ormai orfani alla vecchia categoria.
+  if(state.focusMode === 'comune') state.focusMode = null;
+  if(state.inactiveCategories) state.inactiveCategories = state.inactiveCategories.filter(c => c !== 'comune');
+  if(state.indices && state.indices.comune !== undefined) delete state.indices.comune;
+
   // Protezione generale, valida per QUALUNQUE categoria aggiunta in futuro (non solo questa):
   // se un account ha dati salvati da prima che una categoria esistesse, la sua chiave manca
   // nell'oggetto indices — la inizializzo a 0 invece di lasciarla "undefined", che altrimenti
@@ -1934,6 +1924,38 @@ function migrateOldPecsCategory(){
       });
     });
   }
+
+  // Unifico il vecchio formato (log = una sola sessione "principale" al giorno, bonusLog
+  // separato per le altre) in un unico formato: log[giorno] = { categoria: {topic}, ... } —
+  // ogni concorso completato quel giorno è alla pari, non c'è più principale/bonus.
+  // Idempotente: un vecchio oggetto {cat,topic} ha sempre la chiave "cat" (mai il nome di
+  // una categoria vera), quindi capisco da solo se un giorno è ancora nel formato vecchio.
+  if(state.log){
+    const newLog = {};
+    Object.keys(state.log).forEach(dKey=>{
+      const entry = state.log[dKey];
+      if(entry && Object.prototype.hasOwnProperty.call(entry, 'cat')){
+        newLog[dKey] = { [entry.cat]: { topic: entry.topic } };
+      } else if(entry && typeof entry === 'object'){
+        newLog[dKey] = entry;
+      }
+    });
+    if(state.bonusLog){
+      Object.keys(state.bonusLog).forEach(dKey=>{
+        const bEntry = state.bonusLog[dKey];
+        if(!bEntry) return;
+        if(!newLog[dKey]) newLog[dKey] = {};
+        Object.keys(bEntry).forEach(c=>{
+          if(!newLog[dKey][c]){
+            const val = bEntry[c];
+            newLog[dKey][c] = (val && typeof val === 'object') ? val : { topic: null };
+          }
+        });
+      });
+    }
+    state.log = newLog;
+  }
+  delete state.bonusLog;
 }
 
 async function saveState(){
@@ -1957,33 +1979,12 @@ async function saveState(){
 function render(){
   const today = new Date();
   const key = dateKey(today);
-  const cat = effectiveDayCategory(today);
-  const doneToday = !!state.log[key];
-  // Se hai già completato la sessione di oggi PRIMA di cambiare focus, la card principale
-  // deve restare fissa su quello che hai davvero fatto — non seguire il nuovo focus,
-  // altrimenti si confonde con la bonus e mostra due volte lo stesso argomento.
-  const mainCat = doneToday ? state.log[key].cat : cat;
 
-  const mainCardHtml = buildSessionCard(mainCat, false);
-
-  // --- Sezione bonus: sbloccata solo dopo aver completato la sessione principale di oggi ---
-  let bonusSectionHtml = '';
-  if (doneToday){
-    // In modalità focus, la bonus non propone altri concorsi: fa proseguire ANCORA sul concorso in focus
-    const otherCats = state.focusMode
-      ? [cat]
-      : getActiveCategories().filter(c => c !== cat);
-    const bonusCardsHtml = otherCats.map(c => buildSessionCard(c, true)).join('');
-    const bonusIntroText = state.focusMode
-      ? `Sei in modalità focus su ${CATS[cat].label} — hai già fatto quella di oggi, se vuoi continuare ad affondare eccone un'altra sullo stesso concorso. Facoltativo, non tocca lo streak.`
-      : `Hai già fatto quella di oggi — se vuoi sfruttare il tempo extra, avanti anche su un'altra materia. Facoltativo, non tocca lo streak.`;
-    bonusSectionHtml = `
-      <div class="bonus-section">
-        <div class="eyebrow">Sessione bonus — hai tempo in più oggi? 🚀</div>
-        <p class="bonus-intro">${bonusIntroText}</p>
-        ${bonusCardsHtml}
-      </div>`;
-  }
+  // Niente più rotazione automatica: mostro TUTTI i concorsi attivi, uno per card, con
+  // quello in Focus (se impostato) in cima — nessuno sblocca gli altri, sono tutti sempre
+  // completabili direttamente, indipendentemente dagli altri.
+  const orderedCats = getOrderedActiveCategories();
+  const allCardsHtml = orderedCats.map(c => buildSessionCard(c)).join('');
 
   // --- Sezione custom: sempre disponibile, per registrare studio fatto per conto proprio (es. Mininterno) ---
   const allTopics = getAllTopicsList();
@@ -2031,12 +2032,14 @@ function render(){
     const d = new Date(monday);
     d.setDate(monday.getDate()+i);
     const dKey = dateKey(d);
-    const dCat = effectiveDayCategory(d);
     const isToday = dKey === key;
-    const isDone = !!state.log[dKey];
+    const dayEntry = state.log[dKey] || {};
+    const catsToday = Object.keys(dayEntry);
+    const isDone = catsToday.length > 0;
+    const dotsHtml = catsToday.map(c => `<span class="dot-item" style="background:${CATS[c] ? CATS[c].color : 'var(--text-faint)'}"></span>`).join('');
     weekHtml += `<div class="day-chip ${isToday?'today':''} ${isDone?'done':''}">
       <div class="dname">${DAY_NAMES[d.getDay()]}</div>
-      <div class="mark" style="background:${isDone ? CATS[dCat].color : 'transparent'}"></div>
+      <div class="mark-dots">${isDone ? dotsHtml : '<span class="mark"></span>'}</div>
     </div>`;
   }
 
@@ -2142,7 +2145,7 @@ function render(){
   // quello generale conta solo la principale) — possono benissimo divergere.
   const shieldsCount = state.streakShields || 0;
   const shieldsHtml = shieldsCount > 0 ? `<div class="streak-shields">🛡️ ${shieldsCount} scud${shieldsCount===1?'o':'i'} disponibil${shieldsCount===1?'e':'i'}</div>` : '';
-  const focusStreak = calculateFocusStreak();
+  const focusStreak = state.focusMode ? calculateCategoryStreak(state.focusMode) : 0;
   const focusStreakHtml = state.focusMode
     ? `<div class="focus-streak">🎯 ${focusStreak} giorn${focusStreak===1?'o':'i'} di fila su questo focus</div>`
     : '';
@@ -2180,26 +2183,7 @@ function render(){
 
   // --- Riepilogo settimanale: giorni fatti su 7 + media punteggi + bonus fatti nella settimana ---
   const weekMonday = mondayOf(today);
-  let weekDaysDone = 0;
   let weekScoreSum = 0, weekScoreCount = 0;
-  let weekBonusTotal = 0;
-  const weekBonusByCat = {};
-  CATEGORY_KEYS.forEach(c => weekBonusByCat[c] = 0);
-  for(let i=0;i<7;i++){
-    const d = new Date(weekMonday);
-    d.setDate(weekMonday.getDate()+i);
-    const dKey = dateKey(d);
-    if(state.log[dKey]) weekDaysDone++;
-    const bonusEntry = state.bonusLog[dKey] || {};
-    Object.keys(bonusEntry).forEach(bc=>{
-      weekBonusTotal++;
-      weekBonusByCat[bc] = (weekBonusByCat[bc]||0) + 1;
-    });
-  }
-  let topBonusCat = null, topBonusCount = 0;
-  Object.entries(weekBonusByCat).forEach(([c,n])=>{
-    if(n > topBonusCount){ topBonusCount = n; topBonusCat = c; }
-  });
   Object.values(state.scores).forEach(arr=>{
     arr.forEach(s=>{
       const sDate = new Date(s.ts);
@@ -2217,15 +2201,13 @@ function render(){
   monthCells.forEach(d=>{
     if(!d){ monthHtml += `<div class="month-cell empty"></div>`; return; }
     const dKey = dateKey(d);
-    const entry = state.log[dKey];
-    const bonusEntry = state.bonusLog[dKey] || {};
-    const bonusCats = Object.keys(bonusEntry);
+    const dayEntry = state.log[dKey] || {};
+    const catsDone = Object.keys(dayEntry);
     const customEntries = state.customLog[dKey] || [];
     const isToday = dKey === key;
     let dotsHtml = '';
-    if(entry) dotsHtml += `<span class="month-dot" style="background:${CATS[entry.cat] ? CATS[entry.cat].color : 'var(--ink-soft)'}"></span>`;
-    bonusCats.forEach(bc=>{
-      dotsHtml += `<span class="month-dot month-dot-bonus" style="background:${CATS[bc] ? CATS[bc].color : 'var(--ink-soft)'}"></span>`;
+    catsDone.forEach(c=>{
+      dotsHtml += `<span class="month-dot" style="background:${CATS[c] ? CATS[c].color : 'var(--ink-soft)'}"></span>`;
     });
     customEntries.forEach(ce=>{
       dotsHtml += `<span class="month-dot month-dot-custom" style="background:${CATS[ce.cat] ? CATS[ce.cat].color : 'var(--ink-soft)'}"></span>`;
@@ -2243,17 +2225,13 @@ function render(){
     const dDate = new Date(dKey + 'T00:00:00');
     const dLabel = dDate.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
-    const mainEntry = state.log[dKey];
-    const bonusEntry = state.bonusLog[dKey] || {};
+    const dayEntry = state.log[dKey] || {};
     const customEntries = state.customLog[dKey] || [];
 
     let itemsHtml = '';
-    if (mainEntry){
-      itemsHtml += `<div class="day-detail-row"><span class="day-detail-tag" style="background:${CATS[mainEntry.cat]?.color || 'var(--ink-soft)'}">${CATS[mainEntry.cat]?.tag || mainEntry.cat}</span> Sessione principale — ${mainEntry.topic || '(materia non registrata, dato storico)'}</div>`;
-    }
-    Object.entries(bonusEntry).forEach(([bc, val])=>{
+    Object.entries(dayEntry).forEach(([c, val])=>{
       const t = (val && typeof val === 'object') ? val.topic : null;
-      itemsHtml += `<div class="day-detail-row"><span class="day-detail-tag" style="background:${CATS[bc]?.color || 'var(--ink-soft)'}">${CATS[bc]?.tag || bc}</span> Bonus — ${t || '(materia non registrata, dato storico)'}</div>`;
+      itemsHtml += `<div class="day-detail-row"><span class="day-detail-tag" style="background:${CATS[c]?.color || 'var(--ink-soft)'}">${CATS[c]?.tag || c}</span> ${t || '(materia non registrata, dato storico)'}</div>`;
     });
     customEntries.forEach(ce=>{
       itemsHtml += `<div class="day-detail-row"><span class="day-detail-tag" style="background:${CATS[ce.cat]?.color || 'var(--ink-soft)'}">${CATS[ce.cat]?.tag || ce.cat}</span> Custom — ${ce.topicClean}${ce.source ? ` (${ce.source})` : ''}</div>`;
@@ -2283,22 +2261,22 @@ function render(){
       </div>`;
   }
 
-  // --- Barra di conferma focus (la scelta ora avviene dal menu a tendina nell'header) ---
+  // --- Barra di conferma focus (la scelta avviene dal menu a tendina nell'header) ---
   const focusAccent = state.focusMode ? CATS[state.focusMode].color : null;
   let focusBarHtml = '';
   if (state.focusMode){
     const fc = CATS[state.focusMode];
     focusBarHtml = `<div class="focus-bar focus-active">
-      <span class="focus-label" style="color:${fc.color}">🎯 Focus: ${fc.label}</span>
-      <button class="reset-link focus-reset-btn" id="focusResetBtn">torna alla rotazione automatica</button>
+      <span class="focus-label" style="color:${fc.color}">🎯 ${fc.label} in cima</span>
+      <button class="reset-link focus-reset-btn" id="focusResetBtn">togli</button>
     </div>`;
   }
 
   // --- Header compatto: logo + selettore focus a tendina + streak pill, tutto su una riga ---
   const focusSelectHtml = `
     <select class="focus-pill-select" id="focusPillSelect">
-      <option value="">🔄 Rotazione automatica</option>
-      ${getActiveCategories().map(c=>`<option value="${c}" ${state.focusMode===c?'selected':''}>${CATS[c].label}</option>`).join('')}
+      <option value="">Nessun concorso in cima</option>
+      ${getActiveCategories().map(c=>`<option value="${c}" ${state.focusMode===c?'selected':''}>📌 ${CATS[c].label}</option>`).join('')}
     </select>`;
   const shieldsCountHeader = state.streakShields || 0;
   const streakPillHtml = `
@@ -2326,7 +2304,7 @@ function render(){
   ).join('') + `</div>`;
 
   // --- Accordion per il tab "Programma & Concorsi" ---
-  const accordionListHtml = CATEGORY_KEYS.map(c => buildCategoryAccordion(c, c===cat)).join('');
+  const accordionListHtml = CATEGORY_KEYS.map(c => buildCategoryAccordion(c, c===state.focusMode)).join('');
 
   // --- KPI per il tab "Statistiche": sempre su TUTTE le categorie, indipendenti dal focus ---
   const globalAnalysis = buildTopicAnalysis(true);
@@ -2363,9 +2341,8 @@ function render(){
       ${focusBarHtml}
       ${focusPriorityHtml}
       <div class="hero">
-        <div class="eyebrow">Sessione di oggi</div>
-        ${mainCardHtml}
-        ${bonusSectionHtml}
+        <div class="eyebrow">I tuoi concorsi — segna quelli che fai oggi</div>
+        ${allCardsHtml}
       </div>
       ${customSectionHtml}
     </div>
@@ -2404,7 +2381,7 @@ function render(){
         ${getActiveCategories().map(c=>`<span><span class="dot" style="background:${CATS[c].color}"></span>${CATS[c].label}</span>`).join('')}
       </div>
       <div class="footer">
-        Sabato si alterna tra PECS Preselezione e DTD2 (simulazione quiz), la domenica è dedicata al backup Assistente Informatico o al riposo.
+        Lunedì e sabato alternano tra PECS Preselezione e DTD2, la domenica è dedicata al backup Assistente Informatico o al riposo.
         Per le simulazioni usa il simulatore quiz su <a href="https://www.concorsando.it" target="_blank" rel="noopener">Concorsando.it</a>.
         <br><br>
         ${(typeof Notification !== 'undefined' && Notification.permission === 'granted')
@@ -2436,9 +2413,7 @@ function render(){
 
   document.querySelectorAll('.done-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const btnCat = btn.dataset.cat;
-      const isBonus = btn.dataset.bonus === '1';
-      if(isBonus) toggleBonusDone(btnCat); else toggleDone();
+      toggleCategoryDone(btn.dataset.cat);
     });
   });
   document.getElementById('resetBtn').addEventListener('click', resetProgress);
@@ -2551,6 +2526,7 @@ async function importBackup(ev){
     if(state.streakShields === undefined) state.streakShields = 0;
     if(!state.shieldedDates) state.shieldedDates = [];
     if(!state.inactiveCategories) state.inactiveCategories = [];
+    migrateOldPecsCategory();
     await saveState();
     render();
     alert('Backup importato correttamente.');
@@ -2560,39 +2536,51 @@ async function importBackup(ev){
   ev.target.value = '';
 }
 
-async function toggleDone(){
+async function toggleCategoryDone(cat){
   const today = new Date();
   const key = dateKey(today);
   let shieldUsedThisAction = false;
-  if(state.log[key]){
-    const storedCat = state.log[key].cat;
-    delete state.log[key];
-    state.indices[storedCat] = Math.max(0, (state.indices[storedCat]||0) - 1);
+
+  if(!state.log[key]) state.log[key] = {};
+
+  if(state.log[key][cat]){
+    // Annullamento: tolgo solo QUESTA categoria da oggi, le altre eventualmente segnate restano.
+    delete state.log[key][cat];
+    if(Object.keys(state.log[key]).length === 0) delete state.log[key];
+    state.indices[cat] = Math.max(0, (state.indices[cat]||0) - 1);
   } else {
-    // --- Scudo streak: se ieri hai saltato ma l'altro ieri lo streak era vivo, e hai
-    // almeno uno scudo disponibile, lo consuma automaticamente e "ripara" il buco di un
-    // solo giorno — copre l'imprevisto occasionale, non due giorni di fila.
-    const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
-    const yesterdayKey = dateKey(yesterday);
-    const dayBefore = new Date(today); dayBefore.setDate(dayBefore.getDate()-2);
-    const dayBeforeKey = dateKey(dayBefore);
-    if(!state.shieldedDates) state.shieldedDates = [];
-    const yesterdayMissed = !state.log[yesterdayKey] && !state.shieldedDates.includes(yesterdayKey);
-    const dayBeforeWasStreak = !!state.log[dayBeforeKey] || state.shieldedDates.includes(dayBeforeKey);
-    if(yesterdayMissed && dayBeforeWasStreak && (state.streakShields||0) > 0){
-      state.shieldedDates.push(yesterdayKey);
-      state.streakShields -= 1;
-      shieldUsedThisAction = true;
+    const wasEmptyToday = !state.log[key] || Object.keys(state.log[key]).length === 0;
+
+    // --- Scudo streak: si applica solo se oggi non avevi ANCORA segnato nulla (primo
+    // completamento della giornata) — se ieri hai saltato ma l'altro ieri lo streak era
+    // vivo, e hai almeno uno scudo disponibile, lo consuma automaticamente.
+    if(wasEmptyToday){
+      const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+      const yesterdayKey = dateKey(yesterday);
+      const dayBefore = new Date(today); dayBefore.setDate(dayBefore.getDate()-2);
+      const dayBeforeKey = dateKey(dayBefore);
+      if(!state.shieldedDates) state.shieldedDates = [];
+      const yesterdayMissed = !hasAnyActivityOnDay(yesterdayKey) && !state.shieldedDates.includes(yesterdayKey);
+      const dayBeforeWasStreak = hasAnyActivityOnDay(dayBeforeKey) || state.shieldedDates.includes(dayBeforeKey);
+      if(yesterdayMissed && dayBeforeWasStreak && (state.streakShields||0) > 0){
+        state.shieldedDates.push(yesterdayKey);
+        state.streakShields -= 1;
+        shieldUsedThisAction = true;
+      }
     }
 
-    const cat = effectiveDayCategory(today);
-    state.log[key] = { cat, topic: getCurrentTopicClean(cat) };
+    if(!state.log[key]) state.log[key] = {};
+    state.log[key][cat] = { topic: getCurrentTopicClean(cat) };
     state.indices[cat] = (state.indices[cat]||0) + 1;
 
-    // --- Guadagno di uno scudo nuovo se questa sessione fa raggiungere un traguardo streak ---
-    const newStreak = calculateStreak();
-    if(STREAK_MILESTONES.includes(newStreak)){
-      state.streakShields = Math.min((state.streakShields||0) + 1, 3);
+    // --- Guadagno di uno scudo nuovo se questa è la prima completata oggi e fa raggiungere
+    // un traguardo streak (lo streak generale conta "almeno una categoria oggi", quindi
+    // completamenti successivi nello stesso giorno non lo fanno avanzare di nuovo) ---
+    if(wasEmptyToday){
+      const newStreak = calculateStreak();
+      if(STREAK_MILESTONES.includes(newStreak)){
+        state.streakShields = Math.min((state.streakShields||0) + 1, 3);
+      }
     }
   }
   await saveState();
@@ -2600,20 +2588,6 @@ async function toggleDone(){
   if(shieldUsedThisAction){
     alert('🛡️ Avevi saltato un giorno, ma avevi uno scudo disponibile — lo streak è salvo!');
   }
-}
-
-async function toggleBonusDone(cat){
-  const key = dateKey(new Date());
-  if(!state.bonusLog[key]) state.bonusLog[key] = {};
-  if(state.bonusLog[key][cat]){
-    delete state.bonusLog[key][cat];
-    state.indices[cat] = Math.max(0, (state.indices[cat]||0) - 1);
-  } else {
-    state.bonusLog[key][cat] = { topic: getCurrentTopicClean(cat) };
-    state.indices[cat] = (state.indices[cat]||0) + 1;
-  }
-  await saveState();
-  render();
 }
 
 async function saveCustomSession(){
@@ -2656,7 +2630,7 @@ async function saveCustomSession(){
 
 async function resetProgress(){
   if(!confirm('Reimpostare tutti i progressi salvati? Questa azione non si può annullare.')) return;
-  state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, bonusLog:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
+  state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
   await saveState();
   render();
 }
