@@ -1313,7 +1313,7 @@ const SUPABASE_URL = 'https://qvtrbloiykgimhinvpvj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2dHJibG9peWtnaW1oaW52cHZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMDIyMDgsImV4cCI6MjA5OTU3ODIwOH0.ghPTJ8pOnrteQbvksuDwdn-LKj9SBeppSYlj3uOmwgI';
 const USER_ID = 'antonio';
 
-let state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
+let state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], multiDayShieldDates:[], inactiveCategories:[] };
 
 function getAllTopicsList(){
   const list = [];
@@ -1809,8 +1809,7 @@ function nextQuizQuestion(){
 async function saveQuizResult(){
   if(!activeQuiz) return;
   const key = activeQuiz.topic;
-  if(!state.scores[key]) state.scores[key] = [];
-  state.scores[key].push({ ts: Date.now(), correct: activeQuiz.correct, total: activeQuiz.questions.length });
+  recordScore(key, activeQuiz.correct, activeQuiz.questions.length);
   await saveState();
   activeQuiz = null;
   render();
@@ -1836,8 +1835,7 @@ async function saveManualScore(topicKey, cat){
     alert('Inserisci numeri validi (corrette non può superare il totale).');
     return;
   }
-  if(!state.scores[topicKey]) state.scores[topicKey] = [];
-  state.scores[topicKey].push({ ts: Date.now(), correct, total });
+  recordScore(topicKey, correct, total);
   await saveState();
   render();
 }
@@ -2534,6 +2532,28 @@ async function importBackup(ev){
   ev.target.value = '';
 }
 
+// Punto unico dove viene salvato un punteggio (mini-test, quiz Concorsando, sessione
+// custom) — oltre a salvarlo, controlla se è il 3° punteggio salvato oggi (qualsiasi
+// materia, qualsiasi concorso) e in quel caso regala uno scudo extra, indipendente dai
+// traguardi streak — sempre nel tetto massimo di 3, e una sola volta al giorno.
+function recordScore(topicClean, correct, total){
+  if(!state.scores[topicClean]) state.scores[topicClean] = [];
+  state.scores[topicClean].push({ ts: Date.now(), correct, total });
+
+  const todayKey = dateKey(new Date());
+  if(!state.multiDayShieldDates) state.multiDayShieldDates = [];
+  if(!state.multiDayShieldDates.includes(todayKey)){
+    let countToday = 0;
+    Object.values(state.scores).forEach(arr=>{
+      arr.forEach(e=>{ if(dateKey(new Date(e.ts)) === todayKey) countToday++; });
+    });
+    if(countToday >= 3){
+      state.multiDayShieldDates.push(todayKey);
+      state.streakShields = Math.min((state.streakShields||0) + 1, 3);
+    }
+  }
+}
+
 async function toggleCategoryDone(cat){
   const today = new Date();
   const key = dateKey(today);
@@ -2612,8 +2632,7 @@ async function saveCustomSession(){
       alert('Il punteggio inserito non è valido (corrette non può superare il totale). Lascia entrambi i campi vuoti se non vuoi registrare un punteggio.');
       return;
     }
-    if(!state.scores[topicClean]) state.scores[topicClean] = [];
-    state.scores[topicClean].push({ ts: Date.now(), correct, total });
+    recordScore(topicClean, correct, total);
     scoreSaved = true;
   }
 
@@ -2628,7 +2647,7 @@ async function saveCustomSession(){
 
 async function resetProgress(){
   if(!confirm('Reimpostare tutti i progressi salvati? Questa azione non si può annullare.')) return;
-  state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], inactiveCategories:[] };
+  state = { indices: makeEmptyIndices(), log:{}, scores:{}, quizStats:{}, customLog:{}, focusMode:null, streakShields:0, shieldedDates:[], multiDayShieldDates:[], inactiveCategories:[] };
   await saveState();
   render();
 }
